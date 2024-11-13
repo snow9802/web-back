@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!-- DB의 엔티티 속성명과 Java 객체의 프로퍼티명의 명명 규칙을 매핑하기 위함 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="jdbcTypeForNull" value="NULL" />
+    </settings>
+    <!--    <environments default="development">-->
+    <!--        <environment id="development">-->
+    <!--            <transactionManager type="JDBC"/>-->
+    <!--            <dataSource type="POOLED">-->
+    <!--                <property name="driver" value="${driver}"/>-->
+    <!--                <property name="url" value="${url}"/>-->
+    <!--                <property name="username" value="${username}"/>-->
+    <!--                <property name="password" value="${password}"/>-->
+    <!--            </dataSource>-->
+    <!--        </environment>-->
+    <!--    </environments>-->
+<!--    <typeAliases>-->
+<!--        <typeAlias type="com.example.springboot_starbucks.vo.Customer" alias="Customer"/>-->
+<!--        <typeAlias type="com.example.springboot_starbucks.vo.OrderInfo" alias="OrderInfo"/>-->
+<!--        <typeAlias type="com.example.springboot_starbucks.vo.OrderLine" alias="OrderLine"/>-->
+<!--        <typeAlias type="com.example.springboot_starbucks.vo.Product" alias="Product"/>-->
+<!--    </typeAliases>-->
+    <mappers>
+        <!--        <mapper resource="org/mybatis/example/BlogMapper.xml"/>-->
+        <!--        <mapper resource="com/example/springboot_starbucks/mapper/CustomerMapper.xml"/>-->
+    </mappers>
+</configuration>
