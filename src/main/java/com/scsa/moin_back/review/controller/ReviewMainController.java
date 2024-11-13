@@ -4,7 +4,6 @@ import com.scsa.moin_back.review.service.ReviewMainService;
 import com.scsa.moin_back.review.vo.ReviewVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +20,7 @@ public class ReviewMainController {
            // @PathVariable("page") int page
     ){
         reviewMainService.test();
-        System.out.println("테스트123123123");
+        System.out.println("오잉...?");
         return ResponseEntity.ok(reviewMainService.test());
     }
 
