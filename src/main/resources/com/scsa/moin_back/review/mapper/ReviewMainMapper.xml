@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scsa.moin_back.review.mapper.ReviewMainMapper">
+
+    <!-- ReviewVO 객체와 쿼리 결과 매핑 -->
+    <resultMap id="reviewResultMap" type="com.scsa.moin_back.review.vo.ReviewVO">
+        <result property="reviewId" column="REVIEW_ID"/>
+        <result property="reviewGroupId" column="REVIEW_GROUP_ID"/>
+        <result property="participationId" column="PARTICIPATION_ID"/>
+        <result property="reviewTitle" column="REVIEW_TITLE"/>
+        <result property="reviewContent" column="REVIEW_CONTENT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <select id="getReviewList" resultMap="reviewResultMap">
+    SELECT REVIEW_ID               /* 리뷰 아이디 */
+         , REVIEW_GROUP_ID         /* 리뷰 그룹 아이디 */
+         , PARTICIPATION_ID
+         , REVIEW_TITLE
+         , REVIEW_CONTENT
+         , CREATED_AT
+      FROM REVIEW
+    </select>
+</mapper>
