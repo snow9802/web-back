@@ -25,6 +25,9 @@
 <!--        <typeAlias type="com.example.springboot_starbucks.vo.OrderLine" alias="OrderLine"/>-->
 <!--        <typeAlias type="com.example.springboot_starbucks.vo.Product" alias="Product"/>-->
 <!--    </typeAliases>-->
+    <typeAliases>
+        <typeAlias type="com.scsa.moin_back.group.vo.GroupVO" alias="Group"/>
+    </typeAliases>
     <mappers>
         <!--        <mapper resource="org/mybatis/example/BlogMapper.xml"/>-->
         <!--        <mapper resource="com/example/springboot_starbucks/mapper/CustomerMapper.xml"/>-->
