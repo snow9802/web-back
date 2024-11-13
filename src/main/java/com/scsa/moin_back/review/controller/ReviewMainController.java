@@ -20,7 +20,7 @@ public class ReviewMainController {
            // @PathVariable("page") int page
     ){
         reviewMainService.test();
-        System.out.println("오잉...?123132");
+        System.out.println("오잉...?123132?????");
         return ResponseEntity.ok(reviewMainService.test());
     }
 
