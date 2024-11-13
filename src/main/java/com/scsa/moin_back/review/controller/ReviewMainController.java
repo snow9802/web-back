@@ -21,7 +21,7 @@ public class ReviewMainController {
            // @PathVariable("page") int page
     ){
         reviewMainService.test();
-        System.out.println("테스트중");
+        System.out.println("테스트123123123");
         return ResponseEntity.ok(reviewMainService.test());
     }
 
