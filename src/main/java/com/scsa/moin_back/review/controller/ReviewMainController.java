@@ -2,8 +2,8 @@ package com.scsa.moin_back.review.controller;
 
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.review.dto.ReviewDTO;
-import com.scsa.moin_back.review.service.ReviewMainService;
-import com.scsa.moin_back.review.vo.ReviewVO;
+import com.scsa.moin_back.review.dto.ReviewDetailDTO;
+import com.scsa.moin_back.review.service.ReviewServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequestMapping("/review")
 @RequiredArgsConstructor
 public class ReviewMainController {
-    private final ReviewMainService reviewMainService;
+    private final ReviewServiceImpl reviewMainServiceImpl;
 
     @GetMapping(value = {"/main/{category}/{currentPage}/{pageSize}", "/main"})
     public ResponseEntity<PageDTO<ReviewDTO>> getReviewList(
@@ -41,11 +41,18 @@ public class ReviewMainController {
             cp = currentPage.get();
         }
 
-
         int ps = pageSize.orElse(5); //한 화면에 보여줄 페이지수 5
-        PageDTO<ReviewDTO> pageDTO = reviewMainService.getReviewList(searchParamMap, cp, ps);
+        PageDTO<ReviewDTO> pageDTO = reviewMainServiceImpl.getReviewList(searchParamMap, cp, ps);
         return ResponseEntity.ok(pageDTO);
     }
 
+    @GetMapping(value = {"/detail/{reviewId}"})
+    public ResponseEntity<ReviewDetailDTO> getReviewDetail(
+        @PathVariable int reviewId
+    ){
+        reviewId = 1;
+        ReviewDetailDTO reviewDetail = reviewMainServiceImpl.getReviewDetail(reviewId);
+        return ResponseEntity.ok(reviewDetail);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.scsa.moin_back.review.mapper;
 
 import com.scsa.moin_back.review.dto.ReviewDTO;
+import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
