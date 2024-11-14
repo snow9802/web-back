@@ -8,6 +8,10 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="jdbcTypeForNull" value="NULL" />
     </settings>
+    <typeAliases>
+        <typeAlias type="com.scsa.moin_back.group.dto.GroupDTO" alias="GroupDTO"/>
+        <typeAlias type="com.scsa.moin_back.group.vo.GroupVO" alias="GroupVO"/>
+    </typeAliases>
     <typeHandlers>
         <typeHandler handler="com.scsa.moin_back.common.handler.CustomDateHandler"/>
     </typeHandlers>
