@@ -14,14 +14,21 @@ import java.util.List;
 public class ReviewDTO {
     private int reviewId;
     private int reviewGroupId;
-    private int participationId;
+    private int reviewCommentCnt;
+    private int categoryId;
+    private int groupId;
+    private String reviewWriter;
     private String reviewTitle;
     private String reviewContent;
+    private String categoryName;
+    private String groupName;
+    private String city;
+    private String district;
+    private String reviewImgUrl;
     private Date createdAt;
+
 
     private List<ReviewCommentVO> reviewCommentList;
     private List<ReviewRecommentVO> reviewRecommentList;
     private List<ReviewImgVO> reviewImgList;
-
-
 }
