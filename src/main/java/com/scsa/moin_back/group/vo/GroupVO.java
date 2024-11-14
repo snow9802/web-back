@@ -9,7 +9,7 @@ import java.util.Date;
 @ToString
 public class GroupVO {
     private int groupId;
-    private int groupLeaderId; // FK
+    private String groupLeaderId; // FK
     private int categoryId; // FK
     private String groupName;
     private String introText;
@@ -25,4 +25,6 @@ public class GroupVO {
     private String delYn;
     private Date createdAt;
     private int likeCount;
+    private int commentCount;
+    private int participationCount;
 }

@@ -1,28 +1,45 @@
 package com.scsa.moin_back.group.service;
 
-import com.scsa.moin_back.group.mapper.GroupMapper;
-import com.scsa.moin_back.group.vo.GroupVO;
+import com.scsa.moin_back.common.dto.PageDTO;
+import com.scsa.moin_back.group.dto.GroupDTO;
+import com.scsa.moin_back.group.mapper.GroupMainMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-
+@Service
 @RequiredArgsConstructor
-public class GroupServiceImpl implements GroupService {
+public class GroupServiceImpl implements IGroupService {
 
-    private final GroupMapper groupMapper;
+    private final GroupMainMapper groupMainMapper;
 
-    public List<GroupVO> getList() {
-        /* HashMap 형태로 작성해서 mapper 메서드 호출 */
-        //    int startRow;
-        //    int endRow;
-        //    String searchParam;
-        //    String location;
-        //    String isActice;
-        //    session에서 현재 사용자의 id 꺼내서 던지기
+    @Override
+    public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> page, Optional<String> category, String searchParam, String city, String district, String isActive) {
 
-        return null;
+        PageDTO<GroupDTO> pageDTO = new PageDTO<>();
+
+        /* SQL문 parameter로 넘길 map 형성 */
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("searchParam", searchParam);
+        paramMap.put("city", city);
+        paramMap.put("district", district);
+        paramMap.put("category", category.orElse("all"));
+
+        /* 모집 여부에 따른 분기 처리 */
+        if ("Y".equals(isActive)){
+            List<GroupDTO> groupDTOList = groupMainMapper.getGroupsActive(paramMap);
+//            System.out.println(groupDTOList);
+            pageDTO.setList(groupDTOList);
+            return pageDTO;
+        } else {
+            List<GroupDTO> groupDTOList = groupMainMapper.getGroupsNotActive(paramMap);
+            pageDTO.setList(groupDTOList);
+            return pageDTO;
+        }
     }
-
 }

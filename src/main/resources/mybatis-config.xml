@@ -8,6 +8,10 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="jdbcTypeForNull" value="NULL" />
     </settings>
+    <typeAliases>
+        <typeAlias type="com.scsa.moin_back.group.dto.GroupDTO" alias="GroupDTO"/>
+        <typeAlias type="com.scsa.moin_back.group.vo.GroupVO" alias="GroupVO"/>
+    </typeAliases>
     <typeHandlers>
         <typeHandler handler="com.scsa.moin_back.common.handler.CustomDateHandler"/>
     </typeHandlers>
@@ -28,9 +32,6 @@
 <!--        <typeAlias type="com.example.springboot_starbucks.vo.OrderLine" alias="OrderLine"/>-->
 <!--        <typeAlias type="com.example.springboot_starbucks.vo.Product" alias="Product"/>-->
 <!--    </typeAliases>-->
-    <typeAliases>
-        <typeAlias type="com.scsa.moin_back.group.vo.GroupVO" alias="Group"/>
-    </typeAliases>
     <mappers>
         <!--        <mapper resource="org/mybatis/example/BlogMapper.xml"/>-->
         <!--        <mapper resource="com/example/springboot_starbucks/mapper/CustomerMapper.xml"/>-->
