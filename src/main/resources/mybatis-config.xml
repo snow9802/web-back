@@ -11,6 +11,7 @@
     <typeAliases>
         <typeAlias type="com.scsa.moin_back.group.dto.GroupDTO" alias="GroupDTO"/>
         <typeAlias type="com.scsa.moin_back.group.vo.GroupVO" alias="GroupVO"/>
+        <typeAlias type="com.scsa.moin_back.group.vo.GroupDetailVO" alias="GroupDetailVO"/>
     </typeAliases>
     <typeHandlers>
         <typeHandler handler="com.scsa.moin_back.common.handler.CustomDateHandler"/>

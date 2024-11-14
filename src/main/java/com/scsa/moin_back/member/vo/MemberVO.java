@@ -1,9 +1,10 @@
 package com.scsa.moin_back.member.vo;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class MemberVO {
-    private int id;
+    private String id;
     private int favCategoryId;
     private String name;
     private String password;
@@ -11,13 +12,13 @@ public class MemberVO {
     private String phoneNumber;
     private String email;
     private String profileUrl;
-    private LocalDateTime joinedAt;
+    private Date joinedAt;
     private String delYn;
 
     public MemberVO() {
     }
 
-    public MemberVO(int id, int favCategoryId, String name, String password, String nickname, String phoneNumber, String email, String profileUrl, LocalDateTime joinedAt, String delYn) {
+    public MemberVO(String id, int favCategoryId, String name, String password, String nickname, String phoneNumber, String email, String profileUrl, Date joinedAt, String delYn) {
         this.id = id;
         this.favCategoryId = favCategoryId;
         this.name = name;
@@ -30,11 +31,11 @@ public class MemberVO {
         this.delYn = delYn;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -94,11 +95,11 @@ public class MemberVO {
         this.profileUrl = profileUrl;
     }
 
-    public LocalDateTime getJoinedAt() {
+    public Date getJoinedAt() {
         return joinedAt;
     }
 
-    public void setJoinedAt(LocalDateTime joinedAt) {
+    public void setJoinedAt(Date joinedAt) {
         this.joinedAt = joinedAt;
     }
 

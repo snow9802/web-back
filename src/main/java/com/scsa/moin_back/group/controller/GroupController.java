@@ -2,11 +2,15 @@ package com.scsa.moin_back.group.controller;
 
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
+import com.scsa.moin_back.group.dto.GroupDetailDTO;
 import com.scsa.moin_back.group.service.IGroupService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -21,7 +25,7 @@ public class GroupController {
      * @return
      */
     @GetMapping(value = {"/{page}/{category}", ""})
-    public PageDTO<GroupDTO> getGroup(HttpSession session,
+    public PageDTO<GroupDTO> getGroups(HttpSession session,
                                       @PathVariable Optional<Integer> page,
                                       @PathVariable Optional<String> category,
                                       @RequestParam(required = false, defaultValue = "") String searchParam,
@@ -33,5 +37,14 @@ public class GroupController {
 //        String id = session.getAttribute("id").toString();
         String userId = "testId";
         return groupService.getGroups(userId, page, category, searchParam, city, district, isActive);
+    }
+
+    @GetMapping(value = {"detail/{groupId}"})
+    public ResponseEntity<GroupDetailDTO> getGroupDetail(@PathVariable Optional<Integer> groupId) {
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String id = "testId";
+
+        return ResponseEntity.ok(groupService.getGroupDetail(groupId, id));
     }
 }
