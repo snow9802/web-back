@@ -187,4 +187,35 @@
             )
         </if>
     </select>
+
+    <!-- 모임 단일 조회 -->
+    <select id="searchGroupById" parameterType="int" resultType="com.scsa.moin_back.group.vo.GroupVO">
+        SELECT *
+        FROM GROUPS
+        WHERE GROUP_ID = #{groupId}
+    </select>
+
+    <!-- 모임 삭제 여부 업데이트 -->
+    <update id="modifyGroupRemove" parameterType="int">
+        UPDATE GROUPS
+        SET DEL_YN = 'Y'
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 모임 등록  -->
+    <insert id="insertGroup" parameterType="com.scsa.moin_back.group.vo.GroupVO">
+            <selectKey keyProperty="groupId" resultType="int" order="AFTER">
+                SELECT SEQ_GROUP.CURRVAL FROM DUAL
+            </selectKey>
+        INSERT INTO
+        GROUPS (GROUP_ID, GROUP_LEADER_ID, CATEGORY_ID, GROUP_NAME, INTRO_TEXT, GROUP_CONTENT, GROUP_LIMIT, GROUP_DATE, CLOSE_DATE, CITY, DISTRICT, DETAIL_ADDR, GROUP_IMG, PARTICIPATION_COUNT)
+        VALUES (SEQ_GROUP.NEXTVAL, #{groupLeaderId}, #{categoryId}, #{groupName}, #{introText}, #{groupContent}, #{groupLimit}, #{groupDate}, #{closeDate}, #{city}, #{district}, #{detailAddr}, #{groupImg}, #{participationCount})
+    </insert>
+
+    <!-- 참여 테이블 추가 -->
+    <insert id="insertParticipation" parameterType="map">
+        INSERT INTO
+        PARTICIPATION (PARTICIPATION_ID, GROUP_ID, ID)
+        VALUES (SEQ_PARTICIPATION.NEXTVAL, #{groupId}, #{id})
+    </insert>
 </mapper>

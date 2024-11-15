@@ -3,14 +3,15 @@ package com.scsa.moin_back.group.controller;
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupDetailDTO;
+import com.scsa.moin_back.group.service.IGroupDetailService;
 import com.scsa.moin_back.group.service.IGroupService;
-import lombok.Getter;
+import com.scsa.moin_back.group.vo.GroupVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.NoSuchElementException;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +19,7 @@ import java.util.Optional;
 @RequestMapping("/group")
 public class GroupController {
     private final IGroupService groupService;
+    private final IGroupDetailService groupDetailService;
 
     /**
      * 모임 목록 조회
@@ -58,9 +60,34 @@ public class GroupController {
         String id = "testId";
 
         try{
-            return ResponseEntity.ok(groupService.getGroupDetail(groupId, id));
+            return ResponseEntity.ok(groupDetailService.getGroupDetail(groupId, id));
         } catch (Exception e){
             return ResponseEntity.status(400).build();
         }
+    }
+
+    /**
+     * 모임 삭제 (SOFT)
+     * @param paramMap
+     * @return
+     */
+    @PutMapping("/remove")
+    public ResponseEntity<Object> removeGroup(@RequestBody HashMap<String, Object> paramMap) {
+        return groupService.removeGroup(paramMap);
+    }
+
+    /**
+     * 모임 등록
+     * @param group
+     * @return
+     */
+    @PostMapping("/regist")
+    public ResponseEntity<Object> registGroup(@RequestBody GroupVO group) {
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String id = "user01";
+        group.setGroupLeaderId(id);
+
+        return groupService.registGroup(group);
     }
 }
