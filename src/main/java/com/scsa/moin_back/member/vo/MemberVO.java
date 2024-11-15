@@ -6,12 +6,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter @Setter
 @RequiredArgsConstructor
 @ToString
 public class MemberVO {
-    private int id;
+    private String id;
     private int favCategoryId;
     private String name;
     private String password;
@@ -19,6 +20,6 @@ public class MemberVO {
     private String phoneNumber;
     private String email;
     private String profileUrl;
-    private LocalDateTime joinedAt;
+    private Date joinedAt;
     private String delYn;
 }

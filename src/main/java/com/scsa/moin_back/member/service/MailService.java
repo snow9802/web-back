@@ -13,12 +13,17 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RegisterMailService implements MailServiceInterface {
+public class MailService implements MailServiceInterface {
 
     @Autowired
     JavaMailSender emailSender; // MailConfig에서 등록해둔 Bean을 autowired하여 사용하기
 
     private String ePw; // 사용자가 메일로 받을 인증번호
+
+    public String getCertiNum(){
+        return ePw;
+    }
+
 
     // 메일 내용 작성
     @Override

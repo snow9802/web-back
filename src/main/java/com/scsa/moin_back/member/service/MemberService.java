@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements MemberServiceInterface{
     private final MemberMapper memberMapper;
 
-    public void login(int id, String pwd) throws FindException {
+    @Override
+    public void login(String id, String pwd) throws FindException {
         MemberVO member = memberMapper.findById(id);
+        System.out.println(member);
         if(member == null || !member.getPassword().equals(pwd)) {
             throw new FindException();
         }

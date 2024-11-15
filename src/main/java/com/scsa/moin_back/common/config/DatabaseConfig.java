@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource({"classpath:/application.properties"})
-@MapperScan(basePackages = {"com.scsa.moin_back"})
+//@MapperScan(basePackages = {"com.scsa.moin_back"})
 @EnableTransactionManagement
 @Slf4j
 public class DatabaseConfig {

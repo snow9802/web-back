@@ -29,6 +29,7 @@ public class MemberController {
         try{
             memberService.login(member.getId(), member.getPassword());
             session.setAttribute("loginId", member.getId());
+            System.out.println(member.getPassword());
             return ResponseEntity.ok().build();
         } catch (FindException e) {
             e.printStackTrace();
