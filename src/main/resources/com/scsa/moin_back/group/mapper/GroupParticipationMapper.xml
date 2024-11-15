@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.scsa.moin_back.group.mapper.GroupParticipationMapper">
+    <!-- 참여 테이블 추가 -->
+    <insert id="registParticipation" parameterType="map">
+        INSERT INTO
+        PARTICIPATION (PARTICIPATION_ID, GROUP_ID, ID)
+        VALUES (SEQ_PARTICIPATION.NEXTVAL, #{groupId}, #{id})
+    </insert>
+
+    <!-- groupId, id와 모두 동일한 행 조회 -->
+    <select id="searchParticipationCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PARTICIPATION
+        WHERE GROUP_ID = #{groupId}
+        AND id = #{id}
+    </select>
+</mapper>

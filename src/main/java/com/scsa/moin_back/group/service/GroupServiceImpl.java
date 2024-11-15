@@ -8,6 +8,7 @@ import com.scsa.moin_back.group.dto.GroupDetailDTO;
 import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.mapper.GroupDetailMapper;
 import com.scsa.moin_back.group.mapper.GroupMainMapper;
+import com.scsa.moin_back.group.mapper.GroupParticipationMapper;
 import com.scsa.moin_back.group.vo.GroupDetailVO;
 import com.scsa.moin_back.group.vo.GroupVO;
 import com.scsa.moin_back.groupcomment.vo.GroupCommentVO;
@@ -29,6 +30,7 @@ public class GroupServiceImpl implements IGroupService {
 
     private final GroupMainMapper groupMainMapper;
     private final CategoryMapper categoryMapper;
+    private final GroupParticipationMapper groupParticipationMapper;
     
     @Override
     public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive) {
@@ -105,7 +107,7 @@ public class GroupServiceImpl implements IGroupService {
             paramMap.put("groupId", group.getGroupId());
             paramMap.put("id", group.getGroupLeaderId());
 
-            groupMainMapper.insertParticipation(paramMap);
+            groupParticipationMapper.registParticipation(paramMap);
 
             /* 결과 리턴 */
             return ResponseEntity.ok().build();
@@ -145,6 +147,30 @@ public class GroupServiceImpl implements IGroupService {
             System.out.println(group);
             groupMainMapper.updateGroup(group);
 
+            return ResponseEntity.ok().build();
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap) {
+        /* 파라미터 유효성 체크 */
+        if (paramMap.get("groupId") == null || paramMap.get("id") == null){
+            return ResponseEntity.status(409).build();
+        }
+
+        /* 이미 참여 중이라면 추가로 넣으면 안됨 */
+        int count = groupParticipationMapper.searchParticipationCount(paramMap);
+        if (count > 0){
+            return ResponseEntity.status(400).build(); // 이미 참여 중인 경우
+        }
+
+        try{
+            int result = groupParticipationMapper.registParticipation(paramMap);
+            if (result == 0){
+                return ResponseEntity.status(400).build(); // 참가 실패
+            }
             return ResponseEntity.ok().build();
         } catch (Exception e){
             return ResponseEntity.status(400).build();

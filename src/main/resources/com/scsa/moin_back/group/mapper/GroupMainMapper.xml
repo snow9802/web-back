@@ -212,13 +212,6 @@
         VALUES (SEQ_GROUP.NEXTVAL, #{groupLeaderId}, #{categoryId}, #{groupName}, #{introText}, #{groupContent}, #{groupLimit}, #{groupDate}, #{closeDate}, #{city}, #{district}, #{detailAddr}, #{groupImg}, #{participationCount})
     </insert>
 
-    <!-- 참여 테이블 추가 -->
-    <insert id="insertParticipation" parameterType="map">
-        INSERT INTO
-        PARTICIPATION (PARTICIPATION_ID, GROUP_ID, ID)
-        VALUES (SEQ_PARTICIPATION.NEXTVAL, #{groupId}, #{id})
-    </insert>
-
     <!-- 모임 수정  -->
     <update id="updateGroup" parameterType="com.scsa.moin_back.group.vo.GroupVO">
         UPDATE GROUPS

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.scsa.moin_back.grouprecomment.mapper.GroupRecommentMapper">
+
+    <!-- 대댓글 등록 -->
+    <insert id="insertGroupRecomment" parameterType="com.scsa.moin_back.grouprecomment.vo.GroupRecommentVO">
+        INSERT INTO
+        GROUP_RECOMMENTS (RECOMMENT_ID, COMMENT_ID, ID, RECOMMENT_CONTENT, CREATED_AT)
+        VALUES (SEQ_GROUP_RECOMMENT.NEXTVAL, #{commentId}, #{id}, #{recommentContent}, SYSDATE)
+    </insert>
+
+    <!-- 대댓글 수정 -->
+    <update id="updateGroupRecomment" parameterType="com.scsa.moin_back.grouprecomment.vo.GroupRecommentVO">
+        UPDATE GROUP_RECOMMENTS
+        SET
+            RECOMMENT_CONTENT = #{recommentContent},
+            CREATED_AT = SYSDATE
+        WHERE RECOMMENT_ID = #{recommentId}
+    </update>
+
+    <!-- 대댓글 삭제 -->
+    <delete id="deleteGroupRecomment" parameterType="com.scsa.moin_back.grouprecomment.vo.GroupRecommentVO">
+        DELETE FROM GROUP_RECOMMENTS
+        WHERE RECOMMENT_ID = #{recommentId}
+    </delete>
+</mapper>

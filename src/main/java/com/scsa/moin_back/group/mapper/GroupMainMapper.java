@@ -60,12 +60,6 @@ public interface GroupMainMapper {
     int insertGroup(GroupVO group);
 
     /**
-     * 참여 관계 추가
-     * @param paramMap
-     */
-    void insertParticipation(Map<String, Object> paramMap);
-
-    /**
      * 모임 정보 수정
      * @param group
      */

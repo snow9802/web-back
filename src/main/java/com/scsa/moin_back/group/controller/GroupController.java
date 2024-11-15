@@ -102,8 +102,18 @@ public class GroupController {
         return groupService.getGroupModifyDTO(groupId);
     }
 
+    /**
+     * 모임 수정 - 수정
+     * @param groupVO
+     * @return
+     */
     @PutMapping("/update")
     public ResponseEntity<Object> updateGroup(@RequestBody GroupVO groupVO) {
         return groupService.modifyGroup(groupVO);
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<Object> joinGroup(@RequestBody HashMap<String, Object> paramMap) {
+        return groupService.registParticipation(paramMap);
     }
 }

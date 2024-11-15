@@ -21,4 +21,6 @@ public interface IGroupService {
     ResponseEntity<GroupModifyDTO> getGroupModifyDTO(Optional<Integer> groupId);
 
     ResponseEntity<Object> modifyGroup(GroupVO groupVO);
+
+    ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap);
 }
