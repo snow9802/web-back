@@ -15,36 +15,52 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/group/*")
+@RequestMapping("/group")
 public class GroupController {
     private final IGroupService groupService;
 
     /**
-     * main 페이지에 필요한 모임 정보를 리턴하는 group
+     * 모임 목록 조회
      * @param session
      * @return
      */
-    @GetMapping(value = {"/{page}/{category}", ""})
-    public PageDTO<GroupDTO> getGroups(HttpSession session,
-                                      @PathVariable Optional<Integer> page,
-                                      @PathVariable Optional<String> category,
-                                      @RequestParam(required = false, defaultValue = "") String searchParam,
-                                      @RequestParam(required = false, defaultValue = "all") String city,
-                                      @RequestParam(required = false, defaultValue = "all") String district,
-                                      @RequestParam(required = false, defaultValue = "Y") String isActive) {
+    @GetMapping(value = {"/{category}/{currentPage}/{pageSize}", ""})
+    public ResponseEntity<PageDTO<GroupDTO>> getGroups(HttpSession session,
+                                       @PathVariable Optional<String> category,
+                                       @PathVariable Optional<Integer> currentPage,
+                                       @PathVariable Optional<Integer> pageSize,
+                                       @RequestParam(required = false, defaultValue = "") String searchParam,
+                                       @RequestParam(required = false, defaultValue = "all") String city,
+                                       @RequestParam(required = false, defaultValue = "all") String district,
+                                       @RequestParam(required = false, defaultValue = "Y") String isActive) {
 
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String userId = "testId";
-        return groupService.getGroups(userId, page, category, searchParam, city, district, isActive);
+
+        try {
+            PageDTO<GroupDTO> pageDTO = groupService.getGroups(userId, currentPage, pageSize, category, searchParam, city, district, isActive);
+            return ResponseEntity.ok(pageDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
     }
 
-    @GetMapping(value = {"detail/{groupId}"})
+    /**
+     * 모임 상세 조회
+     * @param groupId
+     * @return
+     */
+    @GetMapping(value = {"/detail/{groupId}"})
     public ResponseEntity<GroupDetailDTO> getGroupDetail(@PathVariable Optional<Integer> groupId) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = "testId";
 
-        return ResponseEntity.ok(groupService.getGroupDetail(groupId, id));
+        try{
+            return ResponseEntity.ok(groupService.getGroupDetail(groupId, id));
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
     }
 }

@@ -9,4 +9,5 @@ import lombok.*;
 public class GroupDTO {
     private GroupVO group;
     private String isCurUserFavorite;
+    private long dDay;
 }

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 
 public interface IGroupService {
-    PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> page, Optional<String> category, String searchParam, String city, String district, String isActive);
+    PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive);
     GroupDetailDTO getGroupDetail(Optional<Integer> groupId, String id);
 }

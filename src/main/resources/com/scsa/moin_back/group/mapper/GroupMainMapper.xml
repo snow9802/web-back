@@ -11,7 +11,54 @@
 
     <!-- 모집중인 모임 조회 -->
     <select id="getGroupsActive" parameterType="HashMap" resultMap="GroupDTOResultMap">
-        SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*
+        SELECT *
+        FROM
+        (
+            SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*
+            FROM GROUPS G
+            JOIN LIKES L
+            ON L.GROUP_ID = G.GROUP_ID
+            WHERE G.DEL_YN = 'N'
+            AND G.MANUAL_CLOSE_YN = 'N'
+            AND G.CLOSE_DATE >= SYSDATE
+            AND G.PARTICIPATION_COUNT <![CDATA[<]]> G.GROUP_LIMIT
+            <if test="category != 'all'">
+                AND G.CATEGORY_ID =
+                (
+                SELECT CATEGORY_ID
+                FROM CATEGORIES
+                WHERE CATEGORY_NAME = #{category}
+                )
+            </if>
+            <if test="searchParam != ''">
+                AND
+                (
+                G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
+                )
+            </if>
+            <if test='city != "all"'>
+                AND
+                (
+                G.CITY = #{city}
+                )
+            </if>
+            <if test="district != 'all'">
+                AND
+                (
+                G.DISTRICT = #{district}
+                )
+            </if>
+            ORDER BY G.CREATED_AT
+        )
+        WHERE ROWNUM >= #{startRow}
+        AND ROWNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 모집중인 모임 총 개수 조회 -->
+    <select id="getGroupsActiveCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
         FROM GROUPS G
         JOIN LIKES L
         ON L.GROUP_ID = G.GROUP_ID
@@ -22,45 +69,94 @@
         <if test="category != 'all'">
             AND G.CATEGORY_ID =
             (
-                SELECT CATEGORY_ID
-                FROM CATEGORIES
-                WHERE CATEGORY_NAME = #{category}
+            SELECT CATEGORY_ID
+            FROM CATEGORIES
+            WHERE CATEGORY_NAME = #{category}
             )
         </if>
         <if test="searchParam != ''">
             AND
             (
-                G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
-                G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
-                G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
+            G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+            G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+            G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
             )
         </if>
         <if test='city != "all"'>
             AND
             (
-                G.CITY = #{city}
+            G.CITY = #{city}
             )
         </if>
         <if test="district != 'all'">
             AND
             (
-                G.DISTRICT = #{district}
+            G.DISTRICT = #{district}
             )
         </if>
     </select>
 
     <!-- 모집 마감된 모임 조회   -->
     <select id="getGroupsNotActive" parameterType="HashMap" resultMap="GroupDTOResultMap">
-        SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*
+        SELECT *
+        FROM
+        (
+            SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*, ROWNUM RNUM
+            FROM GROUPS G
+            LEFT OUTER JOIN LIKES L
+            ON L.GROUP_ID = G.GROUP_ID
+            WHERE G.DEL_YN = 'N'
+            AND
+            (
+            G.MANUAL_CLOSE_YN = 'Y' OR
+            G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
+            G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
+            )
+            <if test="category != 'all'">
+                AND G.CATEGORY_ID =
+                (
+                SELECT CATEGORY_ID
+                FROM CATEGORIES
+                WHERE CATEGORY_NAME = #{category}
+                )
+            </if>
+            <if test="searchParam != ''">
+                AND
+                (
+                G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
+                )
+            </if>
+            <if test='city != "all"'>
+                AND
+                (
+                G.CITY = #{city}
+                )
+            </if>
+            <if test="district != 'all'">
+                AND
+                (
+                G.DISTRICT = #{district}
+                )
+            </if>
+            ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+    </select>
+
+    <!-- 모집 마감된 모임 총 개수 조회   -->
+    <select id="getGroupsNotActiveCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
         FROM GROUPS G
         JOIN LIKES L
         ON L.GROUP_ID = G.GROUP_ID
         WHERE G.DEL_YN = 'N'
         AND
         (
-            G.MANUAL_CLOSE_YN = 'Y' OR
-            G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
-            G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
+        G.MANUAL_CLOSE_YN = 'Y' OR
+        G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
+        G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
         )
         <if test="category != 'all'">
             AND G.CATEGORY_ID =

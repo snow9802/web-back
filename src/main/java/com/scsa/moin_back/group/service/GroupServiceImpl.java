@@ -12,6 +12,10 @@ import com.scsa.moin_back.member.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.*;
 
 @Service
@@ -22,9 +26,14 @@ public class GroupServiceImpl implements IGroupService {
     private final GroupDetailMapper groupDetailMapper;
 
     @Override
-    public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> page, Optional<String> category, String searchParam, String city, String district, String isActive) {
+    public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive) {
 
-        PageDTO<GroupDTO> pageDTO = new PageDTO<>();
+        /* pagination에 필요한 정보 추가 */
+        int pageGroupSize = 5; // 화면에 보여줄 페이지 그룹의 개수 (1, 2, 3, 4, 5)
+        int curPage = currentPage.orElse(1); // 현재 페이지 번호
+        int ps = pageSize.orElse(9); // 한 화면에 보여줄 객체의 수 9
+        int startRow = (curPage - 1) * ps + 1;
+        int endRow = curPage * ps;
 
         /* SQL문 parameter로 넘길 map 형성 */
         Map<String, Object> paramMap = new HashMap<>();
@@ -32,17 +41,38 @@ public class GroupServiceImpl implements IGroupService {
         paramMap.put("city", city);
         paramMap.put("district", district);
         paramMap.put("category", category.orElse("all"));
+        paramMap.put("startRow", startRow);
+        paramMap.put("endRow", endRow);
 
         /* 모집 여부에 따른 분기 처리 */
         if ("Y".equals(isActive)){
             List<GroupDTO> groupDTOList = groupMainMapper.getGroupsActive(paramMap);
-//            System.out.println(groupDTOList);
-            pageDTO.setList(groupDTOList);
-            return pageDTO;
+            checkFavDate(groupDTOList); // GroupDTO 세팅
+
+            int totalCnt = groupMainMapper.getGroupsActiveCnt(paramMap);
+            return new PageDTO<>(ps, pageGroupSize, curPage, totalCnt, groupDTOList);
         } else {
             List<GroupDTO> groupDTOList = groupMainMapper.getGroupsNotActive(paramMap);
-            pageDTO.setList(groupDTOList);
-            return pageDTO;
+            checkFavDate(groupDTOList); // GroupDTO 세팅
+
+            int totalCnt = groupMainMapper.getGroupsNotActiveCnt(paramMap);
+            return new PageDTO<>(ps, pageGroupSize, curPage, totalCnt, groupDTOList);
+        }
+    }
+
+    private void checkFavDate(List<GroupDTO> groupDTOList) {
+        for (GroupDTO groupDTO : groupDTOList) {
+            if (groupDTO.getIsCurUserFavorite() != null){
+                groupDTO.setIsCurUserFavorite("Y");
+            } else {
+                groupDTO.setIsCurUserFavorite("N");
+            }
+
+            LocalDate curDate = LocalDate.now();
+            LocalDate targetDate = groupDTO.getGroup().getGroupDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            long dayBetween = ChronoUnit.DAYS.between(curDate, targetDate);
+            groupDTO.setDDay(dayBetween);
         }
     }
 
