@@ -19,7 +19,7 @@ public class MemberVO {
     private String nickname;
     private String phoneNumber;
     private String email;
-    private String profileUrl;
+    private String profileUrl = "default url";
     private Date joinedAt;
-    private String delYn;
+    private String delYn = "N";
 }
