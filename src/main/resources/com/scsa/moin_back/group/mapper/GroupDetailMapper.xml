@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.scsa.moin_back.group.mapper.GroupDetailMapper">
+    <resultMap id="groupRecomentResultMap" type="com.scsa.moin_back.grouprecomment.vo.GroupRecommentVO">
+        <id property="recommentId" column="RECOMMENT_ID"/>
+        <result property="commentId" column="RECOMMENT_COMMENT_ID"/>
+        <result property="id" column="RECOMMENT_WRITER_ID"/>
+        <result property="writerNickname" column="RECOMMENT_NICKNAME"/>
+        <result property="createdAt" column="RECOMMENT_CREATED_AT"/>
+        <result property="recommentContent" column="RECOMMENT_CONTENT"/>
+    </resultMap>
+
+    <resultMap id="GroupDetailCommentsResultMap" type="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
+        <id property="commentId" column="COMMENT_ID"/>
+        <result property="groupId" column="COMMENT_GROUP_ID"/>
+        <result property="id" column="COMMENT_MEMBER_ID"/>
+        <result property="writerNickname" column="COMMENT_NICKNAME"/>
+        <result property="createdAt" column="COMMENT_CREATED_AT"/>
+        <result property="commentContent" column="COMMENT_CONTENT"/>
+        <collection property="groupRecomentList" resultMap="groupRecomentResultMap"/>
+    </resultMap>
+
+    <!-- 모임 상세 정보 조회 -->
+    <select id="getGroupDetail" parameterType="int" resultType="com.scsa.moin_back.group.vo.GroupVO">
+        SELECT *
+        FROM GROUPS G
+        WHERE G.GROUP_ID = #{groupId}
+    </select>
+
+    <!-- 모임 참여자 조회 -->
+    <select id="getGroupDetailMember" parameterType="int" resultType="com.scsa.moin_back.member.vo.MemberVO">
+        SELECT M.*
+        FROM GROUPS G
+        JOIN PARTICIPATION P
+        ON G.GROUP_ID = P.GROUP_ID
+        JOIN MEMBERS M
+        ON M.ID = P.ID
+        WHERE G.GROUP_ID = #{groupId}
+    </select>
+
+    <!-- 모임 댓글 조회 -->
+    <select id="getGroupDetailComments" parameterType="int" resultMap="GroupDetailCommentsResultMap">
+        SELECT
+                GC.COMMENT_ID COMMENT_ID,
+                GC.GROUP_ID COMMENT_GROUP_ID,
+                GC.ID COMMENT_MEMBER_ID,
+                COMMENT_MEMBER.NICKNAME COMMENT_NICKNAME,
+                GC.CREATED_AT COMMENT_CREATED_AT,
+                GC.COMMENT_CONTENT COMMENT_CONTENT,
+                GRC.RECOMMENT_ID RECOMMENT_ID,
+                GRC.COMMENT_ID RECOMMENT_COMMENT_ID,
+                GRC.RECOMMENT_CONTENT RECOMMENT_CONTENT,
+                GRC.CREATED_AT RECOMMENT_CREATED_AT,
+                RECOMMENT_MEMBER.NICKNAME RECOMMENT_NICKNAME,
+                RECOMMENT_MEMBER.ID RECOMMENT_WRITER_ID
+        FROM GROUP_COMMENTS GC
+        LEFT OUTER JOIN MEMBERS COMMENT_MEMBER
+        ON GC.ID = COMMENT_MEMBER.ID
+        LEFT OUTER JOIN GROUP_RECOMMENTS GRC
+        ON GC.COMMENT_ID = GRC.COMMENT_ID
+        LEFT OUTER JOIN MEMBERS RECOMMENT_MEMBER
+        ON RECOMMENT_MEMBER.ID = GRC.ID
+        WHERE GC.GROUP_ID = #{groupId}
+    </select>
+
+    <!-- 모임 상세 정보 조회 -->
+    <select id="checkMemberLike" parameterType="map" resultType="com.scsa.moin_back.member.vo.MemberVO">
+        SELECT *
+        FROM GROUPS G
+        JOIN LIKES L
+        ON G.GROUP_ID = L.GROUP_ID
+        WHERE G.GROUP_ID = #{groupId}
+        AND L.ID = #{id}
+    </select>
+</mapper>
