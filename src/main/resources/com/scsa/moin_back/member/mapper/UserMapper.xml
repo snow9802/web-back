@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.scsa.moin_back.member.mapper.UserMapper">
-    <insert id="join" parameterType="com.scsa.moin_back.member.vo.MemberVO" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO users(id, fav_category_id, name, password, nickname, phone_number, email, profile_url, joined_at, del_yn)
-        VALUES(#{id}, #{fav_category_id}, #{name}, #{password}, #{nickname}, #{phone_number}, #{email}, #{profile_url}, SYSDATE, 'N')
-            #{userId}, #{password}, #{name}, #{phoneNum}, #{address}, #{email}
-    </insert>
-</mapper>
