@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scsa.moin_back.member.mapper.RegisterMapper">
+
+    <select id="getcheckById" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM members
+        WHERE id = #{id}
+    </select>
+
+    <select id="getcheckByNickname" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM members
+        WHERE nickname = #{nickname}
+    </select>
+
+    <select id="getcheckByEmail" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM members
+        WHERE email = #{email}
+    </select>
+
+    <insert id="registMemberInfo" parameterType="com.scsa.moin_back.member.vo.MemberVO">
+        INSERT INTO members(id, fav_category_id, name, password, nickname, phone_number, email, profile_url, joined_at, del_yn)
+        VALUES(#{id}, #{favCategoryId}, #{name}, #{password}, #{nickname}, #{phoneNumber}, #{email}, #{profileUrl}, SYSDATE, #{delYn})
+    </insert>
+
+</mapper>
