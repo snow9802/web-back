@@ -3,6 +3,7 @@ package com.scsa.moin_back.group.controller;
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupDetailDTO;
+import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.service.IGroupDetailService;
 import com.scsa.moin_back.group.service.IGroupService;
 import com.scsa.moin_back.group.vo.GroupVO;
@@ -89,5 +90,20 @@ public class GroupController {
         group.setGroupLeaderId(id);
 
         return groupService.registGroup(group);
+    }
+
+    /**
+     * 모임 수정 - 기존 모임 정보 및 카테고리 정보 조회
+     * @param groupId
+     * @return
+     */
+    @GetMapping("/update/{groupId}")
+    public ResponseEntity<GroupModifyDTO> getGroupModifyDTO(@PathVariable Optional<Integer> groupId){
+        return groupService.getGroupModifyDTO(groupId);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Object> updateGroup(@RequestBody GroupVO groupVO) {
+        return groupService.modifyGroup(groupVO);
     }
 }

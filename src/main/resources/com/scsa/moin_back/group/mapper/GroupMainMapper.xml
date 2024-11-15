@@ -16,7 +16,7 @@
         (
             SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*
             FROM GROUPS G
-            JOIN LIKES L
+            LEFT OUTER JOIN LIKES L
             ON L.GROUP_ID = G.GROUP_ID
             WHERE G.DEL_YN = 'N'
             AND G.MANUAL_CLOSE_YN = 'N'
@@ -60,7 +60,7 @@
     <select id="getGroupsActiveCnt" parameterType="HashMap" resultType="int">
         SELECT COUNT(*)
         FROM GROUPS G
-        JOIN LIKES L
+        LEFT OUTER JOIN LIKES L
         ON L.GROUP_ID = G.GROUP_ID
         WHERE G.DEL_YN = 'N'
         AND G.MANUAL_CLOSE_YN = 'N'
@@ -149,7 +149,7 @@
     <select id="getGroupsNotActiveCnt" parameterType="HashMap" resultType="int">
         SELECT COUNT(*)
         FROM GROUPS G
-        JOIN LIKES L
+        LEFT OUTER JOIN LIKES L
         ON L.GROUP_ID = G.GROUP_ID
         WHERE G.DEL_YN = 'N'
         AND
@@ -218,4 +218,22 @@
         PARTICIPATION (PARTICIPATION_ID, GROUP_ID, ID)
         VALUES (SEQ_PARTICIPATION.NEXTVAL, #{groupId}, #{id})
     </insert>
+
+    <!-- 모임 수정  -->
+    <update id="updateGroup" parameterType="com.scsa.moin_back.group.vo.GroupVO">
+        UPDATE GROUPS
+        SET
+            CATEGORY_ID = #{categoryId},
+            GROUP_NAME = #{groupName},
+            INTRO_TEXT = #{introText},
+            GROUP_CONTENT = #{groupContent},
+            GROUP_LIMIT = #{groupLimit},
+            GROUP_DATE = #{groupDate},
+            CLOSE_DATE = #{closeDate},
+            CITY = #{city},
+            DISTRICT = #{district},
+            DETAIL_ADDR = #{detailAddr},
+            GROUP_IMG = #{groupImg}
+        WHERE GROUP_ID = #{groupId}
+    </update>
 </mapper>

@@ -64,4 +64,10 @@ public interface GroupMainMapper {
      * @param paramMap
      */
     void insertParticipation(Map<String, Object> paramMap);
+
+    /**
+     * 모임 정보 수정
+     * @param group
+     */
+    void updateGroup(GroupVO group);
 }

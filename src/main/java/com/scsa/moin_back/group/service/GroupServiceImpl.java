@@ -1,8 +1,11 @@
 package com.scsa.moin_back.group.service;
 
+import com.scsa.moin_back.category.mapper.CategoryMapper;
+import com.scsa.moin_back.category.vo.CategoryVO;
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupDetailDTO;
+import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.mapper.GroupDetailMapper;
 import com.scsa.moin_back.group.mapper.GroupMainMapper;
 import com.scsa.moin_back.group.vo.GroupDetailVO;
@@ -25,6 +28,7 @@ import java.util.*;
 public class GroupServiceImpl implements IGroupService {
 
     private final GroupMainMapper groupMainMapper;
+    private final CategoryMapper categoryMapper;
     
     @Override
     public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive) {
@@ -45,14 +49,17 @@ public class GroupServiceImpl implements IGroupService {
         paramMap.put("startRow", startRow);
         paramMap.put("endRow", endRow);
 
+        System.out.println(isActive);
         /* 모집 여부에 따른 분기 처리 */
         if ("Y".equals(isActive)){
+            System.out.println("isActive Y");
             List<GroupDTO> groupDTOList = groupMainMapper.getGroupsActive(paramMap);
             checkFavDate(groupDTOList); // GroupDTO 세팅
 
             int totalCnt = groupMainMapper.getGroupsActiveCnt(paramMap);
             return new PageDTO<>(ps, pageGroupSize, curPage, totalCnt, groupDTOList);
         } else {
+            System.out.println("isActive N");
             List<GroupDTO> groupDTOList = groupMainMapper.getGroupsNotActive(paramMap);
             checkFavDate(groupDTOList); // GroupDTO 세팅
 
@@ -77,16 +84,12 @@ public class GroupServiceImpl implements IGroupService {
         }
     }
 
-    /**
-     * 모임 등록
-     * @param group
-     * @return
-     */
+
     @Override
     @Transactional
     public ResponseEntity<Object> registGroup(GroupVO group) {
 
-        /* group에 대한 default value 체크 */
+        /* img 파일 처리 필요 */
         if (group.getGroupImg() == null){
             group.setGroupImg("default");
         }
@@ -105,6 +108,43 @@ public class GroupServiceImpl implements IGroupService {
             groupMainMapper.insertParticipation(paramMap);
 
             /* 결과 리턴 */
+            return ResponseEntity.ok().build();
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<GroupModifyDTO> getGroupModifyDTO(Optional<Integer> groupId) {
+        if (groupId.isEmpty()){
+            return ResponseEntity.status(400).build();
+        }
+
+        try {
+            GroupVO group = groupMainMapper.searchGroupById(groupId.get());
+            List<CategoryVO> categoryVOList = categoryMapper.getCategories();
+            GroupModifyDTO modifyDTO = new GroupModifyDTO(group, categoryVOList);
+            return ResponseEntity.ok(modifyDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> modifyGroup(GroupVO group) {
+        /* img 처리 필요 */
+        // image는 null이 아닐 경우만 set, 다른 것들은 그대로 set
+
+        /* 모임명과 카테고리가 null인 경우 에러 코드 응답 */
+        if (group.getGroupName() == null || group.getCategoryId() == 0){
+            return ResponseEntity.status(409).build(); // 수정 불가
+        }
+
+        try {
+            /* 모임 테이블 update */
+            System.out.println(group);
+            groupMainMapper.updateGroup(group);
+
             return ResponseEntity.ok().build();
         } catch (Exception e){
             return ResponseEntity.status(400).build();

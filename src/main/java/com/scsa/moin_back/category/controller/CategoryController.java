@@ -21,6 +21,7 @@ public class CategoryController {
     public ResponseEntity<List<CategoryVO>> getCategories(){
         try{
             List<CategoryVO> categories = categoryService.getCategories();
+            System.out.println(categories);
             return ResponseEntity.ok().body(categories);
         } catch (Exception e) {
             return ResponseEntity.status(400).build();

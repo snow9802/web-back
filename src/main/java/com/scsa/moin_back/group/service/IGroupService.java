@@ -3,6 +3,7 @@ package com.scsa.moin_back.group.service;
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupDetailDTO;
+import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.vo.GroupVO;
 import org.springframework.http.ResponseEntity;
 
@@ -16,4 +17,8 @@ public interface IGroupService {
     ResponseEntity<Object> removeGroup(HashMap<String, Object> paramMap);
 
     ResponseEntity<Object> registGroup(GroupVO group);
+
+    ResponseEntity<GroupModifyDTO> getGroupModifyDTO(Optional<Integer> groupId);
+
+    ResponseEntity<Object> modifyGroup(GroupVO groupVO);
 }
