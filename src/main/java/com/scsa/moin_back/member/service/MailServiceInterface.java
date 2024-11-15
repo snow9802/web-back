@@ -7,7 +7,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.springframework.stereotype.Service;
 
-@Service
 public interface MailServiceInterface {
 
     // 메일 내용 작성
