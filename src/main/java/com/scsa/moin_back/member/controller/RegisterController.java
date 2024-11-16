@@ -62,6 +62,7 @@ public class RegisterController {
         return ResponseEntity.badRequest().build();
     }
 
+
     @PostMapping("/certi-check")
     public ResponseEntity checkCerti(@RequestBody Map<String, String> certiMap, HttpSession session) {
         try {
