@@ -4,13 +4,14 @@ import com.scsa.moin_back.member.exception.FindException;
 import com.scsa.moin_back.member.mapper.RegisterMapper;
 import com.scsa.moin_back.member.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class RegisterService implements RegisterServiceInterface {
     private final RegisterMapper registerMapper;
-    private final MailService mailService;
+    private final PasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public void getidDupCheck(String id) throws FindException {
@@ -45,7 +46,8 @@ public class RegisterService implements RegisterServiceInterface {
 
     @Override
     public void registMemberInfo(MemberVO member) throws Exception {
-        registerMapper.registMemberInfo(member);
+        MemberVO hashedMemberInfo = member.hashPassword(bCryptPasswordEncoder);
+        registerMapper.registMemberInfo(hashedMemberInfo);
     }
 
 }
