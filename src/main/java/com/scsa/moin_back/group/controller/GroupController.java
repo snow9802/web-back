@@ -23,11 +23,11 @@ public class GroupController {
     private final IGroupDetailService groupDetailService;
 
     /**
-     * 모임 목록 조회
+     * 모임 목록 조회 (메인)
      * @param session
      * @return
      */
-    @GetMapping(value = {"/{category}/{currentPage}/{pageSize}", ""})
+    @GetMapping(value = {"/{category}/{currentPage}/{pageSize}", "/{currentPage}/{pageSize}"})
     public ResponseEntity<PageDTO<GroupDTO>> getGroups(HttpSession session,
                                        @PathVariable Optional<String> category,
                                        @PathVariable Optional<Integer> currentPage,
@@ -48,6 +48,102 @@ public class GroupController {
             return ResponseEntity.status(400).build();
         }
     }
+
+    /**
+     * 모임 목록 조회 (마이페이지)
+     * @param session
+     * @return
+     */
+    @GetMapping(value = {"/my/{currentPage}/{pageSize}", ""})
+    public ResponseEntity<PageDTO<GroupDTO>> getMyGroups(HttpSession session,
+                                                       @PathVariable Optional<Integer> currentPage,
+                                                         @PathVariable Optional<Integer> pageSize) {
+
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String userId = "user01";
+
+        try {
+            PageDTO<GroupDTO> pageDTO = groupService.getMyGroups(userId, currentPage, pageSize);
+            return ResponseEntity.ok(pageDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+
+    /**
+     * 내가 참여 중인 모임 조회
+     * @param session
+     * @param currentPage
+     * @param pageSize
+     * @return
+     */
+    @GetMapping(value = {"/my-participation/{currentPage}/{pageSize}", ""})
+    public ResponseEntity<PageDTO<GroupDTO>> getMyParticipation(HttpSession session,
+                                                         @PathVariable Optional<Integer> currentPage,
+                                                         @PathVariable Optional<Integer> pageSize) {
+
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String userId = "user01";
+
+        try {
+            PageDTO<GroupDTO> pageDTO = groupService.getMyParticipationGroups(userId, currentPage, pageSize);
+            return ResponseEntity.ok(pageDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    /**
+     * 내가 참여 중인 지난 모임 조회
+     * @param session
+     * @param currentPage
+     * @param pageSize
+     * @return
+     */
+    @GetMapping(value = {"/my-participation-past/{currentPage}/{pageSize}", ""})
+    public ResponseEntity<PageDTO<GroupDTO>> getMyParticipationPast(HttpSession session,
+                                                                @PathVariable Optional<Integer> currentPage,
+                                                                @PathVariable Optional<Integer> pageSize) {
+
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String userId = "user01";
+
+        try {
+            PageDTO<GroupDTO> pageDTO = groupService.getMyParticipationPastGroups(userId, currentPage, pageSize);
+            return ResponseEntity.ok(pageDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    /**
+     * 좋아요 한 모임 조회
+     * @param session
+     * @param currentPage
+     * @param pageSize
+     * @return
+     */
+    @GetMapping(value = {"/my-like/{currentPage}/{pageSize}", ""})
+    public ResponseEntity<PageDTO<GroupDTO>> getMyFavoriteGroups(HttpSession session,
+                                                                    @PathVariable Optional<Integer> currentPage,
+                                                                    @PathVariable Optional<Integer> pageSize) {
+
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String userId = "user01";
+
+        try {
+            PageDTO<GroupDTO> pageDTO = groupService.getMyFavoriteGroups(userId, currentPage, pageSize);
+            return ResponseEntity.ok(pageDTO);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
 
     /**
      * 모임 상세 조회
@@ -102,8 +198,73 @@ public class GroupController {
         return groupService.getGroupModifyDTO(groupId);
     }
 
+    /**
+     * 모임 수정 - 수정
+     * @param groupVO
+     * @return
+     */
     @PutMapping("/update")
     public ResponseEntity<Object> updateGroup(@RequestBody GroupVO groupVO) {
         return groupService.modifyGroup(groupVO);
+    }
+
+    /**
+     * 참여 테이블 행 추가
+     * @param paramMap
+     * @return
+     */
+    @PostMapping("/join")
+    public ResponseEntity<Object> joinGroup(@RequestBody HashMap<String, Object> paramMap) {
+        return groupService.registParticipation(paramMap);
+    }
+
+    /**
+     * 참여 테이블 행 삭제
+     * @param paramMap
+     * @return
+     */
+    @DeleteMapping("/join")
+    public ResponseEntity<Object> resignParticipant(@RequestBody HashMap<String, Object> paramMap) {
+        try{
+            return groupService.removeParticipation(paramMap);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    /**
+     * 모임 좋아요 등록
+     * @param paramMap
+     * @return
+     */
+    @PostMapping("/like")
+    public ResponseEntity<Object> likeGroup(@RequestBody HashMap<String, Object> paramMap){
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String id = "user01";
+        paramMap.put("id", id);
+        try {
+            return groupService.registLikeGroup(paramMap);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    /**
+     * 모임 좋아요 삭제
+     * @param paramMap
+     * @return
+     */
+    @DeleteMapping("/like")
+    public ResponseEntity<Object> unlikeGroup(@RequestBody HashMap<String, Object> paramMap){
+        /* login 방식에 따라 id 가져오는 방식 변경 가능 */
+//        String id = session.getAttribute("id").toString();
+        String id = "user01";
+        paramMap.put("id", id);
+        try{
+            return groupService.removeLikeGroup(paramMap);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
     }
 }
