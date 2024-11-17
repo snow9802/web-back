@@ -5,6 +5,7 @@ import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
+import com.scsa.moin_back.review.dto.ReviewGroupDTO;
 import com.scsa.moin_back.review.dto.ReviewSearchDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.FindReviewException;
@@ -72,15 +73,18 @@ public class ReviewMainController {
      * @return
      */
     @GetMapping(value = {"/find/{currentPage}/{pageSize}"})
-    public ResponseEntity<PageDTO<GroupDTO>> getReviewGroup(HttpSession httpSession, @PathVariable Optional<Integer> currentPage, @PathVariable Optional<Integer> pageSize) throws FindReviewException {
+    public ResponseEntity<PageDTO<ReviewGroupDTO>> getReviewGroup(
+            HttpSession httpSession
+            , @PathVariable Optional<Integer> currentPage
+            , @PathVariable Optional<Integer> pageSize) throws FindReviewException {
 
         int cp = currentPage.orElse(1);
         int ps = pageSize.orElse(5); //한 화면에 보여줄 페이지수 5
         /*로그인한 사용자 아니면 뱉음*/
         //reviewExceptionHandler.checkLogin(httpSession);
-        String id = "user01"; //테스트(삭제예정)
+        String id = "user03"; //테스트(삭제예정)
 
-        PageDTO<GroupDTO> pageDTO = reviewService.getReviewGroup(id, cp, ps);
+        PageDTO<ReviewGroupDTO> pageDTO = reviewService.getReviewGroup(id, cp, ps);
 
         return ResponseEntity.ok(pageDTO);
     }
@@ -147,10 +151,9 @@ public class ReviewMainController {
     public ResponseEntity modifyReview(ReviewDTO reviewDTO, HttpSession httpSession) throws ModifyReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         //reviewExceptionHandler.checkLogin(httpSession);
-        /*작성자가 사용자가 아니면 뱉음*/
-
         reviewService.modifyReview(reviewDTO);
-        /*리뷰 디테일에 들어가는 내용 파라미터로 받아서 update구문*/
+        //리뷰 이미지도 같이 수정하는건지?? 어떻게 들어오는지 확인 후 이미지 수정 추가 필요
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

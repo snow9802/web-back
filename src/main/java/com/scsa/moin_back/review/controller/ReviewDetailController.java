@@ -1,7 +1,9 @@
 package com.scsa.moin_back.review.controller;
 
 import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
+import com.scsa.moin_back.review.dto.ReviewCommentDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
+import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
 import com.scsa.moin_back.review.exception.RemoveReviewException;
 import com.scsa.moin_back.review.service.ReviewDetailService;
 import lombok.RequiredArgsConstructor;
@@ -58,9 +60,15 @@ public class ReviewDetailController {
      */
     @PostMapping(value={"/comment/{reviewId}"})
     public ResponseEntity addReviewComment(
-            @PathVariable int reviewId
+            @PathVariable int reviewId,
+            @RequestParam("commentContent") String commentContent
+            , HttpSession httpSession
     ){
-        reviewDetailService.registReviewComment(reviewId);
+        ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO();
+        reviewCommentDTO.setReviewId(reviewId);
+        reviewCommentDTO.setCommentContent(commentContent);
+        reviewCommentDTO.setRcWriterId(httpSession.getAttribute("id").toString());
+        reviewDetailService.registReviewComment(reviewCommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -71,10 +79,15 @@ public class ReviewDetailController {
      */
     @PutMapping(value={"/comment/{reviewCommentId}"})
     public ResponseEntity modifyReviewComment(
-            @PathVariable int reviewCommentId
-    ){
+            @PathVariable int reviewCommentId,
+            @RequestParam("commentContent") String commentContent
+            , HttpSession httpSession    ){
 
-        reviewDetailService.modifyReviewComment(reviewCommentId);
+        ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO();
+        reviewCommentDTO.setReviewCommentId(reviewCommentId);
+        reviewCommentDTO.setCommentContent(commentContent);
+        reviewCommentDTO.setRcWriterId(httpSession.getAttribute("id").toString());
+        reviewDetailService.modifyReviewComment(reviewCommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -99,10 +112,16 @@ public class ReviewDetailController {
      */
     @PostMapping(value={"/recomment/{reviewCommentId}"})
     public ResponseEntity addReviewRecomment(
-            @PathVariable int reviewCommentId
+            @PathVariable int reviewCommentId,
+            @RequestParam("recommentContent") String recommentContent,
+            HttpSession httpSession
     ){
+        ReviewRecommentDTO reviewRecommentDTO = new ReviewRecommentDTO();
+        reviewRecommentDTO.setReviewCommentId(reviewCommentId);
+        reviewRecommentDTO.setRecommentContent(recommentContent);
+        reviewRecommentDTO.setRrcWriterId(httpSession.getAttribute("id").toString());
 
-        reviewDetailService.registReviewRecomment(reviewCommentId);
+        reviewDetailService.registReviewRecomment(reviewRecommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -113,9 +132,15 @@ public class ReviewDetailController {
      */
     @PutMapping(value={"/recomment/{reviewRecommentId}"})
     public ResponseEntity modifyReviewRecomment(
-            @PathVariable int reviewRecommentId
+            @PathVariable int reviewRecommentId,
+            @RequestParam("recommentContent") String recommentContent,
+            HttpSession httpSession
     ){
-        reviewDetailService.modifyReviewRecomment(reviewRecommentId);
+        ReviewRecommentDTO reviewRecommentDTO = new ReviewRecommentDTO();
+        reviewRecommentDTO.setReviewCommentId(reviewRecommentId);
+        reviewRecommentDTO.setRecommentContent(recommentContent);
+        reviewRecommentDTO.setRrcWriterId(httpSession.getAttribute("id").toString());
+        reviewDetailService.modifyReviewRecomment(reviewRecommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

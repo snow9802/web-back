@@ -3,7 +3,9 @@ package com.scsa.moin_back.review.service;
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.review.dto.ReviewDTO;
+import com.scsa.moin_back.review.dto.ReviewGroupDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
+import com.scsa.moin_back.review.exception.ModifyReviewException;
 
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public interface ReviewService {
      * @param ps
      * @return
      */
-    PageDTO<GroupDTO> getReviewGroup(String id, int cp, int ps);
+    PageDTO<ReviewGroupDTO> getReviewGroup(String id, int cp, int ps);
 
     /**
      * 유효한 그룹 여부 확인
@@ -60,5 +62,5 @@ public interface ReviewService {
      * 리뷰 수정
      * @param reviewDTO
      */
-    void modifyReview(ReviewDTO reviewDTO);
+    void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException;
 }

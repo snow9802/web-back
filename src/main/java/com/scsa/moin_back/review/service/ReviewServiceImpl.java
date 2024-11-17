@@ -2,10 +2,9 @@ package com.scsa.moin_back.review.service;
 
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
-import com.scsa.moin_back.review.dto.ReviewDTO;
-import com.scsa.moin_back.review.dto.ReviewDetailDTO;
-import com.scsa.moin_back.review.dto.ReviewSearchDTO;
+import com.scsa.moin_back.review.dto.*;
 import com.scsa.moin_back.review.exception.AddReviewException;
+import com.scsa.moin_back.review.exception.ModifyReviewException;
 import com.scsa.moin_back.review.mapper.ReviewDetailMapper;
 import com.scsa.moin_back.review.mapper.ReviewMainMapper;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Map;
 public class ReviewServiceImpl implements ReviewService {
 
     final private ReviewMainMapper reviewMainMapper;
-    private final ReviewDetailMapper reviewDetailMapper;
 
     @Override
     public PageDTO<ReviewDTO> getReviewList(Map<String, Object> map, int currentPage, int pageSize) {
@@ -46,8 +44,19 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PageDTO<GroupDTO> getReviewGroup(String id, int cp, int ps) {
-        return null;
+    public PageDTO<ReviewGroupDTO> getReviewGroup(String id, int currentPage, int pageSize) {
+        HashMap<String, Object> map = new HashMap<>();
+        int startRow = (currentPage - 1) * pageSize + 1;
+        int endRow = currentPage * pageSize;
+        int pageGroupSize = 5; //페이지그룹의 페이지 수 ex)현재페이지 1인경우 1 2 3
+
+        map.put("startRow", startRow);
+        map.put("endRow", endRow);
+        map.put("id", id);
+        List<ReviewGroupDTO> list = reviewMainMapper.getReviewGroup(map);
+        int totalCnt = reviewMainMapper.getReviewGroupCnt(map);
+
+        return new PageDTO<ReviewGroupDTO>(pageSize, pageGroupSize, currentPage, totalCnt, list);
     }
 
     @Override
@@ -60,10 +69,10 @@ public class ReviewServiceImpl implements ReviewService {
     public void addReview(ReviewDTO reviewDTO) throws AddReviewException {
         ReviewDTO reviewDto = new ReviewDTO();
         try {
+            reviewMainMapper.insertReview(reviewDTO);
+            reviewMainMapper.insertReviewImgs(reviewDTO.getReviewImgList());
 
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-            }
             throw new AddReviewException(e.getMessage());
         }
     }
@@ -74,8 +83,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void modifyReview(ReviewDTO reviewDTO) {
-
+    @Transactional(rollbackFor = ModifyReviewException.class)
+    public void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException {
+                ReviewDTO reviewDto = new ReviewDTO();
+        try {
+            reviewMainMapper.updateReview(reviewDTO);
+        } catch (Exception e) {
+            throw new ModifyReviewException(e.getMessage());
+        }
     }
 
     @Override
