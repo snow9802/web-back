@@ -6,5 +6,23 @@
         SELECT * FROM members WHERE id=#{id}
     </select>
 
+    <select id="getIdByNameEmail" resultType="java.lang.String">
+        SELECT id
+        FROM members
+        WHERE name=#{name} AND email=#{email}
+    </select>
+
+    <select id="getMemberByIdEmail" resultType="com.scsa.moin_back.member.vo.MemberVO">
+        SELECT *
+        FROM members
+        WHERE id=#{id} AND email=#{email}
+    </select>
+
+    <update id="modifyPassword">
+        UPDATE members
+        SET password=#{password}
+        WHERE id=#{id}
+    </update>
+
 
 </mapper>
