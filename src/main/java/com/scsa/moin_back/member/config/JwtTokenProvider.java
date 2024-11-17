@@ -5,6 +5,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -37,7 +41,7 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(this.getSigningKey()).parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
@@ -45,7 +49,7 @@ public class JwtTokenProvider {
     }
 
     public String getUserIdFromToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(this.getSigningKey()).parseClaimsJws(token).getBody().getSubject();
     }
 
     private final Set<String> invalidatedTokens = new HashSet<>();
@@ -57,4 +61,5 @@ public class JwtTokenProvider {
     public boolean isTokenInvalidated(String token) {
         return invalidatedTokens.contains(token);
     }
+
 }

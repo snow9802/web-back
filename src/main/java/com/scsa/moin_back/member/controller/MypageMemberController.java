@@ -2,7 +2,6 @@ package com.scsa.moin_back.member.controller;
 
 import com.scsa.moin_back.member.config.JwtTokenProvider;
 import com.scsa.moin_back.member.service.MypageMemberService;
-import com.scsa.moin_back.member.vo.InfoUpdateVO;
 import com.scsa.moin_back.member.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +22,9 @@ public class MypageMemberController {
     // JWT로부터 사용자 id 받아오기
     public String getMemberId(HttpServletRequest request) {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(token == null || token.isEmpty() || !token.startsWith("Bearer ")) {
-            return null;
-        }
+//        if(token == null || token.isEmpty() || !token.startsWith("Bearer ")) {
+//            return null;
+//        }
         token = token.substring(7); // "Bearer " 제거
         // 현재 로그인되어 있는 id 반환하기
         return jwtTokenProvider.getUserIdFromToken(token);
