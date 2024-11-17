@@ -7,4 +7,7 @@ import org.mybatis.spring.annotation.MapperScan;
 @Mapper
 public interface MemberMapper {
     MemberVO findById(String id);
+    String getIdByNameEmail(MemberVO member);
+    MemberVO getMemberByIdEmail(MemberVO member);
+    void modifyPassword(MemberVO member);
 }
