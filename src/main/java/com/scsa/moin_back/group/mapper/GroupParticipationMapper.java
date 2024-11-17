@@ -10,4 +10,6 @@ public interface GroupParticipationMapper {
     int registParticipation(Map<String, Object> paramMap);
 
     int searchParticipationCount(HashMap<String, Object> paramMap);
+
+    int deleteParticipation(HashMap<String, Object> paramMap);
 }

@@ -18,4 +18,11 @@
         WHERE GROUP_ID = #{groupId}
         AND id = #{id}
     </select>
+
+    <!-- 참여 테이블 행 삭제 -->
+    <delete id="deleteParticipation" parameterType="map">
+        DELETE FROM PARTICIPATION
+        WHERE GROUP_ID = #{groupId}
+        AND id = #{id}
+    </delete>
 </mapper>
