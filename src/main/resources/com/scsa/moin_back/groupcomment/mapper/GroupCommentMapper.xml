@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.scsa.moin_back.groupcomment.mapper.GroupCommentMapper">
+
+    <!-- 댓글 등록 -->
+    <insert id="insertGroupComment" parameterType="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
+        INSERT INTO
+        GROUP_COMMENTS (COMMENT_ID, GROUP_ID, ID, CREATED_AT, COMMENT_CONTENT)
+        VALUES (SEQ_GROUP_COMMENT.NEXTVAL, #{groupId}, #{id}, SYSDATE, #{commentContent})
+    </insert>
+
+    <!-- 댓글 수정 -->
+    <update id="updateGroupComment" parameterType="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
+        UPDATE GROUP_COMMENTS
+        SET
+            COMMENT_CONTENT = #{commentContent},
+            CREATED_AT = SYSDATE
+        WHERE COMMENT_ID = #{commentId}
+    </update>
+
+    <!-- 댓글 삭제 -->
+    <delete id="deleteGroupComment" parameterType="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
+        DELETE FROM GROUP_COMMENTS
+        WHERE COMMENT_ID = #{commentId}
+    </delete>
+</mapper>

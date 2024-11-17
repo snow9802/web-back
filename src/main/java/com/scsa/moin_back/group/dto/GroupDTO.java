@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor @NoArgsConstructor
 @ToString
 public class GroupDTO {
+    private int groupId;
     private GroupVO group;
     private String isCurUserFavorite;
     private long dDay;
