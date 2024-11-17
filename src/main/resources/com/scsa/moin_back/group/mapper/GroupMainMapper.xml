@@ -5,16 +5,67 @@
 
 <mapper namespace="com.scsa.moin_back.group.mapper.GroupMainMapper">
     <resultMap id="GroupDTOResultMap" type="GroupDTO">
+        <id column="GID" property="groupId"/>
         <result column="IS_CUR_USER_FAVORITE" property="isCurUserFavorite"/>
         <association property="group" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
     </resultMap>
 
     <!-- 모집중인 모임 조회 -->
     <select id="getGroupsActive" parameterType="HashMap" resultMap="GroupDTOResultMap">
-        SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*
+        SELECT *
+        FROM
+        (
+            SELECT
+                G.GROUP_ID AS GID,
+                (CASE
+                    WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
+                    ELSE 'N'
+                END) AS IS_CUR_USER_FAVORITE,
+                G.*,
+                ROWNUM AS RNUM
+            FROM GROUPS G
+            WHERE G.DEL_YN = 'N'
+            AND G.MANUAL_CLOSE_YN = 'N'
+            AND G.CLOSE_DATE >= SYSDATE
+            AND G.PARTICIPATION_COUNT <![CDATA[<]]> G.GROUP_LIMIT
+            <if test="category != 'all'">
+                AND G.CATEGORY_ID =
+                (
+                SELECT CATEGORY_ID
+                FROM CATEGORIES
+                WHERE CATEGORY_NAME = #{category}
+                )
+            </if>
+            <if test="searchParam != ''">
+                AND
+                (
+                G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
+                )
+            </if>
+            <if test='city != "all"'>
+                AND
+                (
+                G.CITY = #{city}
+                )
+            </if>
+            <if test="district != 'all'">
+                AND
+                (
+                G.DISTRICT = #{district}
+                )
+            </if>
+            ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM >= #{startRow}
+        AND RNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 모집중인 모임 총 개수 조회 -->
+    <select id="getGroupsActiveCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
         FROM GROUPS G
-        JOIN LIKES L
-        ON L.GROUP_ID = G.GROUP_ID
         WHERE G.DEL_YN = 'N'
         AND G.MANUAL_CLOSE_YN = 'N'
         AND G.CLOSE_DATE >= SYSDATE
@@ -22,45 +73,98 @@
         <if test="category != 'all'">
             AND G.CATEGORY_ID =
             (
-                SELECT CATEGORY_ID
-                FROM CATEGORIES
-                WHERE CATEGORY_NAME = #{category}
+            SELECT CATEGORY_ID
+            FROM CATEGORIES
+            WHERE CATEGORY_NAME = #{category}
             )
         </if>
         <if test="searchParam != ''">
             AND
             (
-                G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
-                G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
-                G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
+            G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+            G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+            G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
             )
         </if>
         <if test='city != "all"'>
             AND
             (
-                G.CITY = #{city}
+            G.CITY = #{city}
             )
         </if>
         <if test="district != 'all'">
             AND
             (
-                G.DISTRICT = #{district}
+            G.DISTRICT = #{district}
             )
         </if>
     </select>
 
     <!-- 모집 마감된 모임 조회   -->
     <select id="getGroupsNotActive" parameterType="HashMap" resultMap="GroupDTOResultMap">
-        SELECT L.ID AS IS_CUR_USER_FAVORITE, G.*
-        FROM GROUPS G
-        JOIN LIKES L
-        ON L.GROUP_ID = G.GROUP_ID
-        WHERE G.DEL_YN = 'N'
-        AND
+        SELECT *
+        FROM
         (
+            SELECT
+            G.GROUP_ID AS GID,
+            (CASE
+            WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
+            ELSE 'N'
+            END) AS IS_CUR_USER_FAVORITE,
+            G.*,
+            ROWNUM AS RNUM
+            FROM GROUPS G
+            WHERE G.DEL_YN = 'N'
+            AND
+            (
             G.MANUAL_CLOSE_YN = 'Y' OR
             G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
             G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
+            )
+            <if test="category != 'all'">
+                AND G.CATEGORY_ID =
+                (
+                SELECT CATEGORY_ID
+                FROM CATEGORIES
+                WHERE CATEGORY_NAME = #{category}
+                )
+            </if>
+            <if test="searchParam != ''">
+                AND
+                (
+                G.GROUP_NAME LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.GROUP_CONTENT LIKE CONCAT('%', CONCAT(#{searchParam}, '%')) OR
+                G.INTRO_TEXT LIKE CONCAT('%', CONCAT(#{searchParam}, '%'))
+                )
+            </if>
+            <if test='city != "all"'>
+                AND
+                (
+                G.CITY = #{city}
+                )
+            </if>
+            <if test="district != 'all'">
+                AND
+                (
+                G.DISTRICT = #{district}
+                )
+            </if>
+            ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM >= #{startRow}
+        AND RNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 모집 마감된 모임 총 개수 조회   -->
+    <select id="getGroupsNotActiveCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
+        FROM GROUPS G
+        WHERE G.DEL_YN = 'N'
+        AND
+        (
+        G.MANUAL_CLOSE_YN = 'Y' OR
+        G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
+        G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
         )
         <if test="category != 'all'">
             AND G.CATEGORY_ID =
@@ -90,5 +194,207 @@
             G.DISTRICT = #{district}
             )
         </if>
+    </select>
+
+    <!-- 모임 단일 조회 -->
+    <select id="searchGroupById" parameterType="int" resultType="com.scsa.moin_back.group.vo.GroupVO">
+        SELECT *
+        FROM GROUPS
+        WHERE GROUP_ID = #{groupId}
+    </select>
+
+    <!-- 모임 삭제 여부 업데이트 -->
+    <update id="modifyGroupRemove" parameterType="int">
+        UPDATE GROUPS
+        SET DEL_YN = 'Y'
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 모임 등록  -->
+    <insert id="insertGroup" parameterType="com.scsa.moin_back.group.vo.GroupVO">
+            <selectKey keyProperty="groupId" resultType="int" order="AFTER">
+                SELECT SEQ_GROUP.CURRVAL FROM DUAL
+            </selectKey>
+        INSERT INTO
+        GROUPS (GROUP_ID, GROUP_LEADER_ID, CATEGORY_ID, GROUP_NAME, INTRO_TEXT, GROUP_CONTENT, GROUP_LIMIT, GROUP_DATE, CLOSE_DATE, CITY, DISTRICT, DETAIL_ADDR, GROUP_IMG, PARTICIPATION_COUNT)
+        VALUES (SEQ_GROUP.NEXTVAL, #{groupLeaderId}, #{categoryId}, #{groupName}, #{introText}, #{groupContent}, #{groupLimit}, #{groupDate}, #{closeDate}, #{city}, #{district}, #{detailAddr}, #{groupImg}, #{participationCount})
+    </insert>
+
+    <!-- 모임 수정  -->
+    <update id="updateGroup" parameterType="com.scsa.moin_back.group.vo.GroupVO">
+        UPDATE GROUPS
+        SET
+            CATEGORY_ID = #{categoryId},
+            GROUP_NAME = #{groupName},
+            INTRO_TEXT = #{introText},
+            GROUP_CONTENT = #{groupContent},
+            GROUP_LIMIT = #{groupLimit},
+            GROUP_DATE = #{groupDate},
+            CLOSE_DATE = #{closeDate},
+            CITY = #{city},
+            DISTRICT = #{district},
+            DETAIL_ADDR = #{detailAddr},
+            GROUP_IMG = #{groupImg}
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 모임 좋아요 + 1 -->
+    <update id="updateGroupLike" parameterType="map">
+        UPDATE GROUPS
+        SET
+            LIKE_COUNT = LIKE_COUNT + 1
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 좋아요 테이블 행 추가 -->
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO
+        LIKES (LIKE_ID, ID, GROUP_ID)
+        VALUES (SEQ_LIKE.NEXTVAL, #{id}, #{groupId})
+    </insert>
+
+    <!-- 좋아요 테이블 행 삭제 -->
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM LIKES
+        WHERE ID = #{id}
+        AND GROUP_ID = #{groupId}
+    </delete>
+
+    <!-- 모임 좋아요 -1 -->
+    <update id="updateGroupLikeMinus" parameterType="map">
+        UPDATE GROUPS
+        SET
+        LIKE_COUNT = LIKE_COUNT - 1
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 내가 만든 모임 조회 -->
+    <select id="getMyGroups" parameterType="HashMap" resultMap="GroupDTOResultMap">
+        SELECT *
+        FROM
+        (
+            SELECT
+            G.GROUP_ID AS GID,
+            (CASE
+            WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
+            ELSE 'N'
+            END) AS IS_CUR_USER_FAVORITE,
+            G.*,
+            ROWNUM AS RNUM
+            FROM GROUPS G
+            WHERE G.DEL_YN = 'N'
+            AND G.GROUP_LEADER_ID = #{id}
+            ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM >= #{startRow}
+        AND RNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 내가 만든 모임 총 개수 조회 -->
+    <select id="getMyGroupsCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
+        FROM GROUPS G
+        WHERE G.DEL_YN = 'N'
+        AND G.GROUP_LEADER_ID = #{id}
+    </select>
+
+    <!-- 내가 참여중인 모임 조회 -->
+    <select id="getMyParticipationGroups" parameterType="HashMap" resultMap="GroupDTOResultMap">
+        SELECT *
+        FROM
+        (
+            SELECT
+            G.GROUP_ID AS GID,
+            (CASE
+            WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
+            ELSE 'N' END) AS IS_CUR_USER_FAVORITE,
+            G.*,
+            ROWNUM AS RNUM
+            FROM GROUPS G
+            JOIN PARTICIPATION P
+            ON P.GROUP_ID = G.GROUP_ID
+            WHERE G.DEL_YN = 'N'
+            AND P.ID = #{id}
+            ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM >= #{startRow}
+        AND RNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 내가 참여중인 모임 총 개수 조회 -->
+    <select id="getMyParticipationGroupsCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
+        FROM GROUPS G
+        JOIN PARTICIPATION P
+        ON P.GROUP_ID = G.GROUP_ID
+        WHERE G.DEL_YN = 'N'
+        AND P.ID = #{id}
+    </select>
+
+    <!-- 내가 참여중인 모임 조회 -->
+    <select id="getMyParticipationPastGroups" parameterType="HashMap" resultMap="GroupDTOResultMap">
+        SELECT *
+        FROM
+        (
+        SELECT
+        G.GROUP_ID AS GID,
+        (CASE
+        WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
+        ELSE 'N' END) AS IS_CUR_USER_FAVORITE,
+        G.*,
+        ROWNUM AS RNUM
+        FROM GROUPS G
+        JOIN PARTICIPATION P
+        ON P.GROUP_ID = G.GROUP_ID
+        WHERE G.DEL_YN = 'N'
+        AND P.ID = #{id}
+        AND G.GROUP_DATE <![CDATA[<]]> SYSDATE
+        ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM >= #{startRow}
+        AND RNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 내가 참여중인 모임 총 개수 조회 -->
+    <select id="getMyParticipationPastGroupsCnt" parameterType="HashMap" resultType="int">
+        SELECT COUNT(*)
+        FROM GROUPS G
+        JOIN PARTICIPATION P
+        ON P.GROUP_ID = G.GROUP_ID
+        WHERE G.DEL_YN = 'N'
+        AND P.ID = #{id}
+        AND G.GROUP_DATE <![CDATA[<]]> SYSDATE
+    </select>
+
+    <!-- 내가 좋아요 한 모임 조회 -->
+    <select id="getMyFavoriteGroups" parameterType="HashMap" resultMap="GroupDTOResultMap">
+        SELECT *
+        FROM
+        (
+        SELECT
+        G.GROUP_ID AS GID,
+        'Y' AS IS_CUR_USER_FAVORITE,
+        G.*,
+        ROWNUM AS RNUM
+        FROM GROUPS G
+        JOIN LIKES L
+        ON L.GROUP_ID = G.GROUP_ID
+        WHERE G.DEL_YN = 'N'
+        AND L.ID = #{id}
+        ORDER BY G.CREATED_AT
+        )
+        WHERE RNUM >= #{startRow}
+        AND RNUM <![CDATA[<]]>= #{endRow}
+    </select>
+
+    <!-- 내가 좋아요 한 모임 개수 조회 -->
+    <select id="getMyFavoriteGroupsCnt" parameterType="HashMap" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM GROUPS G
+        JOIN LIKES L
+        ON L.GROUP_ID = G.GROUP_ID
+        WHERE G.DEL_YN = 'N'
+        AND L.ID = #{id}
     </select>
 </mapper>
