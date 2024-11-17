@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class MemberService implements MemberServiceInterface{
     private final MemberMapper memberMapper;
     private final PasswordEncoder bCryptPasswordEncoder;
+    private final MailService mailService;
 
     @Override
     public void login(String id, String pwd) throws FindException {
@@ -23,5 +24,21 @@ public class MemberService implements MemberServiceInterface{
         if(!member.checkPassword(pwd, bCryptPasswordEncoder)) {
             throw new FindException();
         }
+    }
+
+    @Override
+    public String getIdByNameEmail(MemberVO member) throws FindException {
+        return memberMapper.getIdByNameEmail(member);
+    }
+
+    @Override
+    public MemberVO getMemberByIdEmail(MemberVO member) throws FindException {
+        return memberMapper.getMemberByIdEmail(member);
+    }
+
+    @Override
+    public void modifyPassword(MemberVO member) throws FindException {
+        MemberVO hashedMemberInfo = member.hashPassword(bCryptPasswordEncoder);
+        memberMapper.modifyPassword(hashedMemberInfo);
     }
 }
