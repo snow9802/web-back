@@ -2,8 +2,10 @@ package com.scsa.moin_back.review.service;
 
 import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.group.dto.GroupDTO;
+import com.scsa.moin_back.review.dto.ReviewCommentDTO;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
+import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 
 import java.util.Map;
@@ -25,15 +27,15 @@ public interface ReviewDetailService {
 
     /**
      * 리뷰 댓글 등록
-     * @param reviewId
+     * @param reviewCommentDTO
      */
-    void registReviewComment(int reviewId);
+    void registReviewComment(ReviewCommentDTO reviewCommentDTO);
 
     /**
      * 리뷰 댓글 수정
-     * @param reviewCommentId
+     * @param reviewCommentDTO
      */
-    void modifyReviewComment(int reviewCommentId);
+    void modifyReviewComment(ReviewCommentDTO reviewCommentDTO);
 
     /**
      * 리뷰 댓글 삭제
@@ -42,12 +44,20 @@ public interface ReviewDetailService {
     void removeReviewComment(int reviewCommentId);
 
     /**
-     * 리듀
-     * @param reviewCommentId
+     * 리뷰 대댓글 등록
+     * @param reviewRecommentDTO
      */
-    void registReviewRecomment(int reviewCommentId);
+    void registReviewRecomment(ReviewRecommentDTO reviewRecommentDTO);
 
-    void modifyReviewRecomment(int reviewRecommentId);
+    /**
+     * 리뷰 대댓글 수정
+     * @param reviewRecommentDTO
+     */
+    void modifyReviewRecomment(ReviewRecommentDTO reviewRecommentDTO);
 
+    /**
+     * 라뷰 대댓글 삭제
+     * @param reviewRecommentId
+     */
     void removeReviewRecomment(int reviewRecommentId);
 }
