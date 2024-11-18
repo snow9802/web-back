@@ -244,12 +244,11 @@
 
 
 
-        <!-- 리뷰 댓글 삽입 -->
     <insert id="insertReviewComment" parameterType="com.scsa.moin_back.review.dto.ReviewCommentDTO">
         <selectKey keyProperty="reviewCommentId" resultType="int" order="BEFORE">
             SELECT NVL(MAX(REVIEW_COMMENT_ID), 0) + 1 FROM REVIEW_COMMENTS
         </selectKey>
-        INSERT
+        INSERT /* 리뷰 댓글 등록 */
           INTO REVIEW_COMMENTS
             ( REVIEW_COMMENT_ID
              , REVIEW_ID
@@ -265,12 +264,11 @@
         )
     </insert>
 
-        <!-- 리뷰 댓글에 대한 답글(리댓글) 삽입 -->
     <insert id="insertReviewRecomment" parameterType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
         <selectKey keyProperty="reviewRecommentId" resultType="int" order="BEFORE">
             SELECT NVL(MAX(REVIEW_COMMENT_ID), 0) + 1 FROM REVIEW_RECOMMENTS
         </selectKey>
-        INSERT INTO REVIEW_RECOMMENTS (
+        INSERT INTO REVIEW_RECOMMENTS ( /* 리뷰 대댓글 등록 */
                REVIEW_RECOMMENT_ID
              , REVIEW_COMMENT_ID
              , ID
@@ -285,35 +283,43 @@
         )
     </insert>
 
-        <!-- 리뷰 댓글 수정 -->
     <update id="updateReviewComment" parameterType="com.scsa.moin_back.review.dto.ReviewCommentDTO">
-        UPDATE REVIEW_COMMENTS
-        SET COMMENT_CONTENT = #{commentContent}
-        WHERE REVIEW_COMMENT_ID = #{reviewCommentId}
+        UPDATE /* 리뷰 댓글 수정 */
+               REVIEW_COMMENTS
+           SET COMMENT_CONTENT = #{commentContent}
+         WHERE REVIEW_COMMENT_ID = #{reviewCommentId}
            AND ID = #{rcWriterId}
     </update>
 
-    <!-- 리뷰 리댓글 수정 -->
     <update id="updateReviewRecomment" parameterType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
-        UPDATE REVIEW_RECOMMENTS
-        SET RECOMMENT_CONTENT = #{recommentContent}
-        WHERE REVIEW_RECOMMENT_ID = #{reviewRecommentId}
-          AND ID = #{rrcWriterId}
+        UPDATE /* 리뷰 대댓글 수정 */
+               REVIEW_RECOMMENTS
+           SET RECOMMENT_CONTENT = #{recommentContent}
+         WHERE REVIEW_RECOMMENT_ID = #{reviewRecommentId}
+           AND ID = #{rrcWriterId}
     </update>
+
+    <delete id="deleteReviewRecommentBfCmt" parameterType="int">
+        DELETE /* 리뷰 댓글 삭제 전 대댓글 삭제 */
+          FROM REVIEW_RECOMMENTS
+         WHERE REVIEW_COMMENT_ID = #{reviewCommentId}
+    </delete>
 
     <!-- 리뷰 댓글 삭제 -->
     <delete id="deleteReviewComment" parameterType="int">
-        DELETE FROM REVIEW_COMMENTS
+        DELETE /* 리뷰 댓글 삭제 */
+          FROM REVIEW_COMMENTS
         WHERE 1=1
         AND REVIEW_COMMENT_ID = #{reviewCommentId}
     </delete>
 
-        <!-- 리뷰 리댓글 삭제 -->
     <delete id="deleteReviewRecomment" parameterType="int">
-        DELETE FROM REVIEW_RECOMMENTS
-        WHERE 1=1
-        AND REVIEW_RECOMMENT_ID = #{reviewRecommentId}
+        DELETE /* 리뷰 대댓글 삭제 */
+          FROM REVIEW_RECOMMENTS
+         WHERE 1=1
+           AND REVIEW_RECOMMENT_ID = #{reviewRecommentId}
     </delete>
+
 
 
 </mapper>

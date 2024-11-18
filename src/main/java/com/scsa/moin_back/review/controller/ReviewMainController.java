@@ -1,7 +1,6 @@
 package com.scsa.moin_back.review.controller;
 
 import com.scsa.moin_back.common.dto.PageDTO;
-import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
@@ -10,18 +9,13 @@ import com.scsa.moin_back.review.dto.ReviewSearchDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
-import com.scsa.moin_back.review.exception.RemoveReviewException;
 import com.scsa.moin_back.review.service.ReviewService;
-import com.scsa.moin_back.review.service.ReviewServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,18 +41,18 @@ public class ReviewMainController {
      *
      * @param currentPage
      * @param pageSize
-     * @param category
+     * @param categoryName
      * @return
      */
-    @GetMapping(value = {"/main/{category}/{currentPage}/{pageSize}", "/main"})
+    @GetMapping(value = {"/main/{categoryName}/{currentPage}/{pageSize}", "/main"})
     public ResponseEntity<PageDTO<ReviewDTO>> getReviewList(
             @PathVariable Optional<Integer> currentPage,
             @PathVariable Optional<Integer> pageSize,
-            @PathVariable Optional<String> category,
+            @PathVariable Optional<String> categoryName,
             @ModelAttribute ReviewSearchDTO searchDto
     ) throws Exception {
         Map<String, Object> searchParamMap = reviewService.convertToMap(searchDto);
-        searchParamMap.put("categoryName", category.orElse("all"));
+        searchParamMap.put("categoryName", categoryName.orElse("all"));
 
         PageDTO<ReviewDTO> pageDTO = reviewService.getReviewList(searchParamMap, currentPage.orElse(1), pageSize.orElse(5));
         return ResponseEntity.ok(pageDTO);
@@ -81,9 +75,11 @@ public class ReviewMainController {
         int cp = currentPage.orElse(1);
         int ps = pageSize.orElse(5); //한 화면에 보여줄 페이지수 5
         /*로그인한 사용자 아니면 뱉음*/
-        //reviewExceptionHandler.checkLogin(httpSession);
-        String id = "user03"; //테스트(삭제예정)
-
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
         PageDTO<ReviewGroupDTO> pageDTO = reviewService.getReviewGroup(id, cp, ps);
 
         return ResponseEntity.ok(pageDTO);
@@ -100,9 +96,11 @@ public class ReviewMainController {
     @GetMapping(value = {"/regist/{groupId}"})
     public ResponseEntity getReviewGroup(@PathVariable int groupId, HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        //reviewExceptionHandler.checkLogin(httpSession);
-
-        String id = "user01"; //테스트(삭제예정)
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
         reviewService.chkValidGroup(id, groupId);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -137,16 +135,18 @@ public class ReviewMainController {
      * @return
      */
     @GetMapping(value = {"/modify/{reviewId}"})
-    public ResponseEntity<ReviewDTO> modifyReview(@PathVariable int reviewId, HttpSession httpSession) throws FindReviewException {
+    public ResponseEntity<ReviewDetailDTO> modifyReview(
+            @PathVariable int reviewId
+            , HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = (String)httpSession.getAttribute("id");
         id="user01";
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
-        ReviewDTO reviewDTO = reviewService.chkValidReview(id, reviewId);
+        ReviewDetailDTO reviewDetailDTO = reviewService.getReviewModify(id, reviewId);
 
-        return ResponseEntity.ok(reviewDTO);
+        return ResponseEntity.ok(reviewDetailDTO);
     }
 
     /**
@@ -155,7 +155,10 @@ public class ReviewMainController {
      * @return
      */
     @PutMapping(value = {"/modify/{reviewId}"})
-    public ResponseEntity modifyReview(ReviewDTO reviewDTO, HttpSession httpSession) throws ModifyReviewException {
+    public ResponseEntity modifyReview(
+            @PathVariable int reviewId,
+            ReviewDTO reviewDTO
+            , HttpSession httpSession) throws ModifyReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = (String)httpSession.getAttribute("id");
         id="user01";
@@ -163,6 +166,7 @@ public class ReviewMainController {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewDTO.setId(id);
+        reviewDTO.setReviewId(reviewId);
         reviewService.modifyReview(reviewDTO);
         //리뷰 이미지도 같이 수정하는건지?? 어떻게 들어오는지 확인 후 이미지 수정 추가 필요
 
