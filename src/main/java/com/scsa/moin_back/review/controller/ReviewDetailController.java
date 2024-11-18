@@ -44,9 +44,11 @@ public class ReviewDetailController {
             HttpSession httpSession,
             @PathVariable int reviewId
     ) throws RemoveReviewException {
-        /*로그인한 사용자 아니면 뱉음*/
-        //reviewExceptionHandler.checkLogin(httpSession);
-        /*작성자가 사용자가 아니면 뱉음*/
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
 
         reviewDetailService.removeReview(reviewId);
 
@@ -63,11 +65,16 @@ public class ReviewDetailController {
             @PathVariable int reviewId,
             @RequestParam("commentContent") String commentContent
             , HttpSession httpSession
-    ){
+){
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
         ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO();
         reviewCommentDTO.setReviewId(reviewId);
         reviewCommentDTO.setCommentContent(commentContent);
-        reviewCommentDTO.setRcWriterId(httpSession.getAttribute("id").toString());
+        reviewCommentDTO.setRcWriterId(id);
         reviewDetailService.registReviewComment(reviewCommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -82,11 +89,16 @@ public class ReviewDetailController {
             @PathVariable int reviewCommentId,
             @RequestParam("commentContent") String commentContent
             , HttpSession httpSession    ){
+        String id = (String)httpSession.getAttribute("id");
+        id="user02";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
 
         ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO();
         reviewCommentDTO.setReviewCommentId(reviewCommentId);
         reviewCommentDTO.setCommentContent(commentContent);
-        reviewCommentDTO.setRcWriterId(httpSession.getAttribute("id").toString());
+        reviewCommentDTO.setRcWriterId(id);
         reviewDetailService.modifyReviewComment(reviewCommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -116,10 +128,15 @@ public class ReviewDetailController {
             @RequestParam("recommentContent") String recommentContent,
             HttpSession httpSession
     ){
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
         ReviewRecommentDTO reviewRecommentDTO = new ReviewRecommentDTO();
         reviewRecommentDTO.setReviewCommentId(reviewCommentId);
         reviewRecommentDTO.setRecommentContent(recommentContent);
-        reviewRecommentDTO.setRrcWriterId(httpSession.getAttribute("id").toString());
+        reviewRecommentDTO.setRrcWriterId(id);
 
         reviewDetailService.registReviewRecomment(reviewRecommentDTO);
 
@@ -136,10 +153,15 @@ public class ReviewDetailController {
             @RequestParam("recommentContent") String recommentContent,
             HttpSession httpSession
     ){
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
         ReviewRecommentDTO reviewRecommentDTO = new ReviewRecommentDTO();
         reviewRecommentDTO.setReviewCommentId(reviewRecommentId);
         reviewRecommentDTO.setRecommentContent(recommentContent);
-        reviewRecommentDTO.setRrcWriterId(httpSession.getAttribute("id").toString());
+        reviewRecommentDTO.setRrcWriterId(id);
         reviewDetailService.modifyReviewRecomment(reviewRecommentDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);

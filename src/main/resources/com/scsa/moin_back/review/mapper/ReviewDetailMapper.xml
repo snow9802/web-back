@@ -52,15 +52,15 @@
         <id property="reviewCommentId" column="REVIEW_COMMENT_ID"/>
         <result property="reviewId" column="REVIEW_ID"/>
         <result property="commentContent" column="COMMENT_CONTENT"/>
-        <result property="commentWriter" column="COMMENT_WRITER"/>
-        <result property="createdAt" column="COMMENT_CREATED_AT"/>
+        <result property="rcWriter" column="RC_WRITER"/>
+        <result property="rcCreatedAt" column="RC_CREATED_AT"/>
 
         <collection property="reviewRecommentList" ofType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
             <id property="reviewRecommentId" column="REVIEW_RECOMMENT_ID"/>
             <result property="reviewCommentId" column="REVIEW_COMMENT_ID"/>
             <result property="recommentContent" column="RECOMMENT_CONTENT"/>
-            <result property="recommentWriter" column="RECOMMENT_WRITER"/>
-            <result property="createdAt" column="RECOMMENT_CREATED_AT"/>
+            <result property="rrcWriter" column="RRC_WRITER"/>
+            <result property="rrcCreatedAt" column="RRC_CREATED_AT"/>
         </collection>
     </resultMap>
 
@@ -209,16 +209,49 @@
          ORDER BY RC.CREATED_AT DESC, RRC.CREATED_AT ASC
     </select>
 
-        <!-- 리뷰 삭제 -->
+
+    <!-- 리뷰 삭제 로직 START-->
+    <delete id="deleteReviewRecmtBfReview" parameterType="int">
+        DELETE /* 리뷰 삭제 전 리뷰 대댓글 삭제 */
+          FROM REVIEW_RECOMMENTS
+         WHERE REVIEW_RECOMMENT_ID IN (
+                                    SELECT REVIEW_RECOMMENT_ID
+                                      FROM REVIEW_RECOMMENTS RRC
+                                         , REVIEW_COMMENTS RC
+                                      WHERE RRC.REVIEW_COMMENT_ID = RC.REVIEW_COMMENT_ID
+                                        AND RC.REVIEW_ID = #{reviewId}
+                                    )
+    </delete>
+
+    <delete id="deleteReviewImgsBfReview" parameterType="int">
+      DELETE /* 리뷰 삭제 전 리뷰 이미지 삭제*/
+      FROM REVIEW_IMGS
+     WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
+    <delete id="deleteReviewCmtBfReview" parameterType="int">
+    DELETE /* 리뷰 삭제 전 리뷰 댓글 삭제 */
+        FROM REVIEW_COMMENTS
+       WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
     <delete id="deleteReview" parameterType="int">
-        DELETE FROM REVIEW
+        DELETE /* 리뷰 삭제 */
+          FROM REVIEW
          WHERE REVIEW_ID = #{reviewId}
     </delete>
+    <!-- 리뷰 삭제 로직 END-->
+
+
 
         <!-- 리뷰 댓글 삽입 -->
     <insert id="insertReviewComment" parameterType="com.scsa.moin_back.review.dto.ReviewCommentDTO">
-        INSERT INTO REVIEW_COMMENTS (
-               REVIEW_COMMENT_ID
+        <selectKey keyProperty="reviewCommentId" resultType="int" order="BEFORE">
+            SELECT NVL(MAX(REVIEW_COMMENT_ID), 0) + 1 FROM REVIEW_COMMENTS
+        </selectKey>
+        INSERT
+          INTO REVIEW_COMMENTS
+            ( REVIEW_COMMENT_ID
              , REVIEW_ID
              , ID
              , COMMENT_CONTENT
@@ -227,12 +260,16 @@
             #{reviewCommentId},
             #{reviewId},
             #{rcWriterId},
-            #{commentContent}
+            #{commentContent},
             SYSDATE
+        )
     </insert>
 
         <!-- 리뷰 댓글에 대한 답글(리댓글) 삽입 -->
     <insert id="insertReviewRecomment" parameterType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
+        <selectKey keyProperty="reviewRecommentId" resultType="int" order="BEFORE">
+            SELECT NVL(MAX(REVIEW_COMMENT_ID), 0) + 1 FROM REVIEW_RECOMMENTS
+        </selectKey>
         INSERT INTO REVIEW_RECOMMENTS (
                REVIEW_RECOMMENT_ID
              , REVIEW_COMMENT_ID
@@ -240,11 +277,12 @@
              , RECOMMENT_CONTENT
              , CREATED_AT
         ) VALUES (
-            #{reviewReCommentId},
+            #{reviewRecommentId},
             #{reviewCommentId},
             #{rrcWriterId},
-            #{recommentContent}
+            #{recommentContent},
             SYSDATE
+        )
     </insert>
 
         <!-- 리뷰 댓글 수정 -->

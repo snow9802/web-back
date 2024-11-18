@@ -14,7 +14,12 @@ public interface ReviewDetailMapper {
         ReviewGroupDTO getReviewGroup(int groupId);
         ReviewGroupDTO getReviewRecGroup(int categoryId);
         List<ReviewCommentDTO> getReviewComment(int reviewId);
+        void deleteReviewRecmtBfReview(int reviewId);
+        void deleteReviewImgsBfReview(int reviewId);
+        void deleteReviewCmtBfReview(int reviewId);
         void deleteReview(int reviewId);
+
+
         void insertReviewComment(ReviewCommentDTO reviewCommentDTO);
         void insertReviewRecomment(ReviewRecommentDTO reviewRecommentDTO);
         void updateReviewComment(ReviewCommentDTO reviewCommentDTO);

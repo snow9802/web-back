@@ -7,6 +7,7 @@ import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
 import com.scsa.moin_back.review.mapper.ReviewDetailMapper;
 import com.scsa.moin_back.review.mapper.ReviewMainMapper;
+import com.scsa.moin_back.review.vo.ReviewImgVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +72,11 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewDTO reviewDto = new ReviewDTO();
         try {
             reviewMainMapper.insertReview(reviewDTO);
-            reviewMainMapper.insertReviewImgs(reviewDTO.getReviewImgList());
+            List<ReviewImgVO> reviewImgList = reviewDTO.getReviewImgList();
+            if (reviewImgList != null && !reviewImgList.isEmpty()) {
+                reviewMainMapper.insertReviewImgs(reviewDTO.getReviewImgList());
+            }
+
 
         } catch (Exception e) {
             throw new AddReviewException(e.getMessage());
@@ -85,13 +91,30 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional(rollbackFor = ModifyReviewException.class)
     public void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException {
-                ReviewDTO reviewDto = new ReviewDTO();
+        ReviewDTO reviewDto = new ReviewDTO();
         try {
             reviewMainMapper.updateReview(reviewDTO);
         } catch (Exception e) {
             throw new ModifyReviewException(e.getMessage());
         }
     }
+
+    @Override
+    public PageDTO<ReviewDTO> getMyPageReviewList(String id, Integer currentPage, Integer pageSize) {
+        HashMap<String, Object> map = new HashMap<>();
+        int startRow = (currentPage - 1) * pageSize + 1;
+        int endRow = currentPage * pageSize;
+        map.put("startRow", startRow);
+        map.put("endRow", endRow);
+        map.put("id", id);
+        List<ReviewDTO> list = reviewMainMapper.getMyReviewList(map);
+        int totalCnt = reviewMainMapper.getMyReviewListCnt(map);
+
+        int pageGroupSize = 5; //페이지그룹의 페이지 수 ex)현재페이지 1인경우 1 2 3
+        return new PageDTO<ReviewDTO>(pageSize, pageGroupSize, currentPage, totalCnt, list);
+
+    }
+
 
     @Override
     public Map<String, Object> convertToMap(Object obj) throws Exception {

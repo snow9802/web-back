@@ -72,7 +72,7 @@ public class ReviewMainController {
      * @param pageSize
      * @return
      */
-    @GetMapping(value = {"/find/{currentPage}/{pageSize}"})
+    @GetMapping(value = {"/find/{currentPage}/{pageSize}", "/find"})
     public ResponseEntity<PageDTO<ReviewGroupDTO>> getReviewGroup(
             HttpSession httpSession
             , @PathVariable Optional<Integer> currentPage
@@ -117,8 +117,12 @@ public class ReviewMainController {
     @PostMapping(value = {"/regist/{grouopId}"})
     public ResponseEntity registReview(ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        //reviewExceptionHandler.checkLogin(httpSession);
-
+        String id = (String)httpSession.getAttribute("id");
+        id="user10";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
+        reviewDTO.setId(id);
         reviewService.addReview(reviewDTO);
         /*리뷰 디테일에 들어가는 내용 파라미터로 받아서 insert구문*/
         return new ResponseEntity<>(HttpStatus.OK);
@@ -135,8 +139,11 @@ public class ReviewMainController {
     @GetMapping(value = {"/modify/{reviewId}"})
     public ResponseEntity<ReviewDTO> modifyReview(@PathVariable int reviewId, HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        //reviewExceptionHandler.checkLogin(httpSession);
-        String id = "user01"; //테스트(삭제예정)
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
         ReviewDTO reviewDTO = reviewService.chkValidReview(id, reviewId);
 
         return ResponseEntity.ok(reviewDTO);
@@ -150,7 +157,12 @@ public class ReviewMainController {
     @PutMapping(value = {"/modify/{reviewId}"})
     public ResponseEntity modifyReview(ReviewDTO reviewDTO, HttpSession httpSession) throws ModifyReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        //reviewExceptionHandler.checkLogin(httpSession);
+        String id = (String)httpSession.getAttribute("id");
+        id="user01";
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
+        reviewDTO.setId(id);
         reviewService.modifyReview(reviewDTO);
         //리뷰 이미지도 같이 수정하는건지?? 어떻게 들어오는지 확인 후 이미지 수정 추가 필요
 
