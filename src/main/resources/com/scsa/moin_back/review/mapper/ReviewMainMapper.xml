@@ -192,6 +192,7 @@
              , #{reviewTitle}
              , #{reviewContent}
              , SYSDATE
+             )
     </insert>
 
     <insert id="insertReviewImgs" parameterType="java.util.List">
@@ -217,7 +218,97 @@
                REVIEW_TITLE = #{reviewTitle}
              , REVIEW_CONTENT = #{reviewContent}
          WHERE REVIEW_ID = #{reviewId}
+           AND ID = #{id}
     </update>
+
+        <select id="getMyReviewList" parameterType="map"  resultType="com.scsa.moin_back.review.dto.ReviewDTO">
+    WITH GROUP_DATA AS( /*모임 지역정보*/
+        SELECT C.CATEGORY_NAME
+             , C.CATEGORY_ID
+             , G.GROUP_ID
+             , G.GROUP_NAME
+             , G.CITY
+             , G.DISTRICT
+          FROM GROUPS G
+             , CATEGORIES C
+         WHERE G.CATEGORY_ID = C.CATEGORY_ID
+    ), REVIEW_THUMBNAIL AS( /*리뷰 첫번째 사진*/
+        SELECT REVIEW_ID, REVIEW_IMG_URL
+        FROM (
+            SELECT ROW_NUMBER() OVER(PARTITION BY REVIEW_ID ORDER BY REVIEW_IMG_ID) AS RN
+                 , REVIEW_ID
+                 , REVIEW_IMG_URL
+              FROM REVIEW_IMGS)
+        WHERE RN=1
+    ),REVIEW_DATA AS(
+        SELECT R.*
+             , RT.REVIEW_IMG_URL
+          FROM REVIEW R
+          LEFT OUTER JOIN REVIEW_THUMBNAIL RT
+            ON R.REVIEW_ID = RT.REVIEW_ID
+    )
+        SELECT *
+          FROM (
+                SELECT RM.*
+                     , ROWNUM R
+                  FROM (
+                        SELECT
+                            R.REVIEW_ID,
+                            R.REVIEW_GROUP_ID,
+                            (
+                                SELECT
+                                    M.NICKNAME
+                                FROM
+                                    PARTICIPATION P,
+                                    MEMBERS       M
+                                WHERE P.ID = M.ID
+                                  AND P.ID = R.ID
+                                  AND R.REVIEW_GROUP_ID = P.GROUP_ID
+                                  AND M.DEL_YN = 'N'
+                            ) AS REVIEW_WRITER,
+                            (
+                                SELECT
+                                    (COALESCE(A.COMMENT_COUNT, 0) + COALESCE(B.RECOMMENT_COUNT, 0)) AS TOTAL_COMMENTS
+                                FROM
+                                    (SELECT COUNT(1) AS COMMENT_COUNT
+                                     FROM REVIEW_COMMENTS RC
+                                     WHERE RC.REVIEW_ID = R.REVIEW_ID) A,
+
+                                    (SELECT COUNT(1) AS RECOMMENT_COUNT
+                                     FROM REVIEW_RECOMMENTS RCR
+                                     WHERE RCR.REVIEW_COMMENT_ID IN (SELECT REVIEW_COMMENT_ID
+                                                                      FROM REVIEW_COMMENTS
+                                                                      WHERE REVIEW_ID = R.REVIEW_ID)) B
+                          ) AS REVIEW_COMMENT_CNT
+                           , REVIEW_TITLE
+                           , REVIEW_CONTENT
+                           , R.CREATED_AT
+                           , GD.CITY
+                           , GD.DISTRICT
+                           , GD.CATEGORY_NAME
+                           , R.REVIEW_IMG_URL
+                        FROM REVIEW_DATA R
+                           , GROUP_DATA GD
+                       WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
+                         AND R.ID = #{id}
+                       ORDER BY CREATED_AT DESC, REVIEW_TITLE
+                     ) RM
+             )
+             WHERE 1 = 1
+            <if test="startRow != null and endRow != null">
+                AND R BETWEEN #{startRow} AND #{endRow}
+            </if>
+    </select>
+
+
+    <select id="getMyReviewListCnt" parameterType="map"  resultType="int">
+            SELECT /* Review main List Cnt Query */
+                   COUNT(1)
+              FROM REVIEW R
+                 , GROUPS GD
+             WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
+               AND R.ID = #{id}
+    </select>
 
 
 </mapper>

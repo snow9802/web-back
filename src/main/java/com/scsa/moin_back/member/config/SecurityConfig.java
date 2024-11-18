@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable() // CSRF 비활성화
                 .authorizeRequests()
-                .antMatchers("/my/*", "/register/*", "/member/*").permitAll() // 특정 경로 허용
+                .antMatchers("/my/*", "/register/*", "/member/*", "/review/*", "/**").permitAll() // 특정 경로 허용
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);

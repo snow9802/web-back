@@ -63,4 +63,12 @@ public interface ReviewService {
      * @param reviewDTO
      */
     void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException;
+
+    /**
+     * 마이페이지 리뷰 조회
+     * @param curPage
+     * @param pageSize
+     * @return
+     */
+    PageDTO<ReviewDTO> getMyPageReviewList(String id, Integer curPage, Integer pageSize);
 }

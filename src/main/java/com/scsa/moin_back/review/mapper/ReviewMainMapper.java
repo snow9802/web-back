@@ -24,4 +24,8 @@ public interface ReviewMainMapper {
     void insertReviewImgs(List<ReviewImgVO> reviewImgList);
 
     void updateReview(ReviewDTO reviewDTO);
+
+    List<ReviewDTO> getMyReviewList(HashMap<String, Object> map);
+
+    int getMyReviewListCnt(HashMap<String, Object> map);
 }
