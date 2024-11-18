@@ -2,7 +2,280 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.scsa.moin_back.review.mapper.ReviewDetailMapper">
+
+    <!-- 리뷰 모임 및 참가자 조회 -->
+    <resultMap id="reviewGroupPartMap" type="com.scsa.moin_back.review.dto.ReviewGroupDTO">
+        <result property="categoryName" column="CATEGORY_NAME"/>
+        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true">
+            <id property="groupId" column="GROUP_ID"/>
+            <result property="groupLeaderId" column="GROUP_LEADER_ID"/>
+            <result property="groupName" column="GROUP_NAME"/>
+            <result property="introText" column="INTRO_TEXT"/>
+            <result property="groupLimit" column="GROUP_LIMIT"/>
+            <result property="participationCount" column="PARTICIPATION_COUNT"/>
+        </association>
+
+        <collection property="participationList" ofType="com.scsa.moin_back.review.dto.ParticipationDTO">
+            <result property="parcitipationId" column="PARTICIPATION_ID"/>
+            <result property="id" column="ID"/>
+            <result property="groupId" column="GROUP_ID"/>
+            <result property="nickname" column="NICKNAME"/>
+            <result property="profileUrl" column="PROFILE_URL"/>
+        </collection>
+    </resultMap>
+
+    <!-- 리뷰 추천 모임 및 참가자 조회 -->
+    <resultMap id="reviewRecGroupPartMap" type="com.scsa.moin_back.review.dto.ReviewGroupDTO">
+        <id property="groupId" column="GROUP_ID"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
+        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true">
+            <id property="groupId" column="GROUP_ID"/>
+            <result property="groupLeaderId" column="GROUP_LEADER_ID"/>
+            <result property="groupName" column="GROUP_NAME"/>
+            <result property="introText" column="INTRO_TEXT"/>
+            <result property="groupLimit" column="GROUP_LIMIT"/>
+            <result property="participationCount" column="PARTICIPATION_COUNT"/>
+        </association>
+
+        <collection property="participationList" ofType="com.scsa.moin_back.review.dto.ParticipationDTO">
+            <result property="parcitipationId" column="PARTICIPATION_ID"/>
+            <result property="id" column="ID"/>
+            <result property="nickname" column="NICKNAME"/>
+            <result property="profileUrl" column="PROFILE_URL"/>
+        </collection>
+    </resultMap>
+
+    <!-- 리뷰 댓글 및 대댓글 조회 -->
+    <resultMap id="ReviewCommentResultMap" type="com.scsa.moin_back.review.dto.ReviewCommentDTO">
+        <id property="reviewCommentId" column="REVIEW_COMMENT_ID"/>
+        <result property="reviewId" column="REVIEW_ID"/>
+        <result property="commentContent" column="COMMENT_CONTENT"/>
+        <result property="commentWriter" column="COMMENT_WRITER"/>
+        <result property="createdAt" column="COMMENT_CREATED_AT"/>
+
+        <collection property="reviewRecommentList" ofType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
+            <id property="reviewRecommentId" column="REVIEW_RECOMMENT_ID"/>
+            <result property="reviewCommentId" column="REVIEW_COMMENT_ID"/>
+            <result property="recommentContent" column="RECOMMENT_CONTENT"/>
+            <result property="recommentWriter" column="RECOMMENT_WRITER"/>
+            <result property="createdAt" column="RECOMMENT_CREATED_AT"/>
+        </collection>
+    </resultMap>
+
+    <select id="getReviewDetail" parameterType="int"  resultType="com.scsa.moin_back.review.dto.ReviewDetailDTO">
+        SELECT /* 리뷰 상세 내용 */
+               REVIEW_ID
+             , REVIEW_GROUP_ID
+             , REVIEW_TITLE
+             , (
+                SELECT M.NICKNAME
+                FROM PARTICIPATION P
+                   , MEMBERS       M
+                WHERE P.ID = M.ID
+                  AND P.ID = R.ID
+                  AND R.REVIEW_GROUP_ID = P.GROUP_ID
+                  AND M.DEL_YN = 'N'
+                ) AS REVIEW_WRITER
+             , CREATED_AT
+             , REVIEW_CONTENT
+          FROM REVIEW R
+         WHERE REVIEW_ID = #{reviewId}
+    </select>
+
+    <select id="getReviewImages" parameterType="int" resultType="com.scsa.moin_back.review.dto.ReviewImgDTO">
+        SELECT /*리뷰상세 이미지들*/
+               REVIEW_IMG_ID
+             , REVIEW_IMG_URL
+             , R.REVIEW_ID
+          FROM REVIEW R
+             , REVIEW_IMGS RI
+         WHERE R.REVIEW_ID = #{reviewId}
+           AND R.REVIEW_ID = RI.REVIEW_ID
+         ORDER BY REVIEW_IMG_ID
+    </select>
+
+    <select id="getReviewGroup" parameterType="int" resultMap="reviewGroupPartMap">
+        WITH PARTICIPATION_MEMBER AS(
+                SELECT M.NICKNAME
+                     , M.PROFILE_URL
+                     , P.*
+                  FROM PARTICIPATION P
+                     , MEMBERS M
+                 WHERE P.ID = M.ID
+                   AND P.GROUP_ID = #{groupId}
+                 ORDER BY PARTICIPATION_ID
+        ) SELECT /* 리뷰 해당 모임 */
+                 G.GROUP_ID
+               , G.GROUP_LEADER_ID
+               , G.GROUP_NAME
+               , G.INTRO_TEXT
+               , G.GROUP_LIMIT
+               , G.PARTICIPATION_COUNT
+               , (
+                    SELECT CATEGORY_NAME
+                      FROM CATEGORIES
+                     WHERE CATEGORY_ID = G.CATEGORY_ID
+                 ) AS CATEGORY_NAME
+               , PM.NICKNAME
+               , PM.PROFILE_URL
+               , PM.ID
+           FROM GROUPS G
+              , PARTICIPATION_MEMBER PM
+          WHERE G.GROUP_ID = #{groupId}
+            AND G.GROUP_ID = PM.GROUP_ID
+    </select>
+
+    <select id="getReviewRecGroup" parameterType="int" resultMap="reviewRecGroupPartMap">
+        WITH PARTICIPATION_MEMBER AS (
+                SELECT M.NICKNAME
+                     , M.PROFILE_URL
+                     , P.*
+                  FROM PARTICIPATION P
+                     , MEMBERS M
+                 WHERE P.ID = M.ID
+                 ORDER BY PARTICIPATION_ID
+        ) SELECT REC.*
+               , PM.NICKNAME
+               , PM.PROFILE_URL
+               , PM.ID
+            FROM (
+                  SELECT /* 같은 카테고리의 추천 모임 (최신) */
+                         REC_GRP.*
+                       , ROWNUM
+                    FROM (
+                           SELECT GROUP_ID
+                                , GROUP_LEADER_ID
+                                , GROUP_NAME
+                                , INTRO_TEXT
+                                , GROUP_LIMIT
+                                , PARTICIPATION_COUNT
+                                , (
+                                    SELECT CATEGORY_NAME
+                                      FROM CATEGORIES
+                                     WHERE CATEGORY_ID = G.CATEGORY_ID
+                                  ) AS CATEGORY_NAME
+                                , CREATED_AT
+                             FROM GROUPS G
+                            WHERE CATEGORY_ID IN ( SELECT CATEGORY_ID
+                                                     FROM GROUPS
+                                                    WHERE GROUP_ID = #{groupId}
+                                                  )
+                              AND DEL_YN = 'N'
+                              AND GROUP_ID != #{groupId}
+                            ORDER BY CREATED_AT DESC
+                           ) REC_GRP
+                       WHERE ROWNUM = 1
+                    ) REC
+                    , PARTICIPATION_MEMBER PM
+               WHERE REC.GROUP_ID = PM.GROUP_ID
+    </select>
+
+    <select id="getReviewComment" parameterType="int" resultMap="ReviewCommentResultMap">
+        WITH REVIEW_COMMENT_MEMBER AS(
+            SELECT M.NICKNAME
+                 , M.PROFILE_URL
+                 , RC.*
+              FROM REVIEW_COMMENTS RC
+                 , MEMBERS M
+             WHERE RC.ID = M.ID
+            ), REVIEW_RECOMMENT_MEMBER AS(
+                SELECT M.NICKNAME
+                     , M.PROFILE_URL
+                     , RRC.*
+                  FROM REVIEW_RECOMMENTS RRC
+                     , MEMBERS M
+                 WHERE RRC.ID = M.ID
+            )
+        SELECT /*리뷰 상세 댓글*/
+               RC.REVIEW_COMMENT_ID
+             , RC.REVIEW_ID
+             , RC.NICKNAME AS RC_WRITER
+             , RC.ID AS RC_WRITER_ID
+             , RC.PROFILE_URL AS RC_PROFILE_URL
+             , RC.COMMENT_CONTENT
+             , RC.CREATED_AT AS RC_CREATED_AT
+             , RRC.REVIEW_RECOMMENT_ID
+             , RRC.NICKNAME AS RRC_WRITER
+             , RRC.ID AS RRC_WRITER_ID
+             , RRC.PROFILE_URL AS RRC_PROFILE_URL
+             , RRC.RECOMMENT_CONTENT
+             , RRC.CREATED_AT AS RRC_CREATED_AT
+          FROM REVIEW_COMMENT_MEMBER RC
+          LEFT OUTER JOIN REVIEW_RECOMMENT_MEMBER RRC
+            ON RC.REVIEW_COMMENT_ID = RRC.REVIEW_COMMENT_ID
+         WHERE REVIEW_ID = #{reviewId}
+         ORDER BY RC.CREATED_AT DESC, RRC.CREATED_AT ASC
+    </select>
+
+        <!-- 리뷰 삭제 -->
+    <delete id="deleteReview" parameterType="int">
+        DELETE FROM REVIEW
+         WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
+        <!-- 리뷰 댓글 삽입 -->
+    <insert id="insertReviewComment" parameterType="com.scsa.moin_back.review.dto.ReviewCommentDTO">
+        INSERT INTO REVIEW_COMMENTS (
+               REVIEW_COMMENT_ID
+             , REVIEW_ID
+             , ID
+             , COMMENT_CONTENT
+             , CREATED_AT
+        ) VALUES (
+            #{reviewCommentId},
+            #{reviewId},
+            #{rcWriterId},
+            #{commentContent}
+            SYSDATE
+    </insert>
+
+        <!-- 리뷰 댓글에 대한 답글(리댓글) 삽입 -->
+    <insert id="insertReviewRecomment" parameterType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
+        INSERT INTO REVIEW_RECOMMENTS (
+               REVIEW_RECOMMENT_ID
+             , REVIEW_COMMENT_ID
+             , ID
+             , RECOMMENT_CONTENT
+             , CREATED_AT
+        ) VALUES (
+            #{reviewReCommentId},
+            #{reviewCommentId},
+            #{rrcWriterId},
+            #{recommentContent}
+            SYSDATE
+    </insert>
+
+        <!-- 리뷰 댓글 수정 -->
+    <update id="updateReviewComment" parameterType="com.scsa.moin_back.review.dto.ReviewCommentDTO">
+        UPDATE REVIEW_COMMENTS
+        SET COMMENT_CONTENT = #{commentContent}
+        WHERE REVIEW_COMMENT_ID = #{reviewCommentId}
+           AND ID = #{rcWriterId}
+    </update>
+
+    <!-- 리뷰 리댓글 수정 -->
+    <update id="updateReviewRecomment" parameterType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
+        UPDATE REVIEW_RECOMMENTS
+        SET RECOMMENT_CONTENT = #{recommentContent}
+        WHERE REVIEW_RECOMMENT_ID = #{reviewRecommentId}
+          AND ID = #{rrcWriterId}
+    </update>
+
+    <!-- 리뷰 댓글 삭제 -->
+    <delete id="deleteReviewComment" parameterType="int">
+        DELETE FROM REVIEW_COMMENTS
+        WHERE 1=1
+        AND REVIEW_COMMENT_ID = #{reviewCommentId}
+    </delete>
+
+        <!-- 리뷰 리댓글 삭제 -->
+    <delete id="deleteReviewRecomment" parameterType="int">
+        DELETE FROM REVIEW_RECOMMENTS
+        WHERE 1=1
+        AND REVIEW_RECOMMENT_ID = #{reviewRecommentId}
+    </delete>
 
 
 </mapper>
