@@ -1,14 +1,10 @@
 package com.scsa.moin_back.review.service;
 
-import com.scsa.moin_back.common.dto.PageDTO;
-import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.review.dto.ReviewCommentDTO;
-import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
-import com.scsa.moin_back.review.exception.AddReviewException;
-
-import java.util.Map;
+import com.scsa.moin_back.review.exception.FindReviewException;
+import com.scsa.moin_back.review.exception.RemoveReviewException;
 
 public interface ReviewDetailService {
 
@@ -17,7 +13,7 @@ public interface ReviewDetailService {
      * @param reviewId
      * @return
      */
-    ReviewDetailDTO getReviewDetail(int reviewId);
+    ReviewDetailDTO getReviewDetail(int reviewId) throws FindReviewException;
 
     /**
      * 리뷰 삭제
@@ -59,5 +55,5 @@ public interface ReviewDetailService {
      * 라뷰 대댓글 삭제
      * @param reviewRecommentId
      */
-    void removeReviewRecomment(int reviewRecommentId);
+    void removeReviewRecomment(int reviewRecommentId) throws RemoveReviewException;
 }

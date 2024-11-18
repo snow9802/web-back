@@ -2,12 +2,19 @@ package com.scsa.moin_back.review.service;
 
 import com.scsa.moin_back.review.dto.ReviewCommentDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
+import com.scsa.moin_back.review.dto.ReviewImgDTO;
 import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
+import com.scsa.moin_back.review.exception.AddReviewException;
+import com.scsa.moin_back.review.exception.FindReviewException;
+import com.scsa.moin_back.review.exception.ModifyReviewException;
+import com.scsa.moin_back.review.exception.RemoveReviewException;
 import com.scsa.moin_back.review.mapper.ReviewDetailMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +24,7 @@ public class ReviewDetailServiceImpl implements ReviewDetailService {
     private final ReviewDetailMapper reviewDetailMapper;
 
     @Override
-    public ReviewDetailDTO getReviewDetail(int reviewId) {
+    public ReviewDetailDTO getReviewDetail(int reviewId) throws FindReviewException {
         /*리뷰 상세페이지 조회*/
         //1.리뷰 상세 내용 조회
         ReviewDetailDTO reviewDetailDTO = reviewDetailMapper.getReviewDetail(reviewId);
@@ -27,12 +34,16 @@ public class ReviewDetailServiceImpl implements ReviewDetailService {
         reviewDetailDTO.setReviewGroup(reviewDetailMapper.getReviewGroup(reviewDetailDTO.getReviewGroupId()));
         //4.리뷰 모임 추천 조회
         reviewDetailDTO.setReviewRecGroup(reviewDetailMapper.getReviewRecGroup(reviewDetailDTO.getReviewGroupId()));
+        //5.리뷰 상세 이미지 조회
+        List<ReviewImgDTO> reviewImgList = reviewDetailMapper.getReviewImages(reviewId);
+        reviewDetailDTO.setReviewImgList(reviewImgList);
+
 
         return reviewDetailDTO;
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = RemoveReviewException.class)
     public void removeReview(int reviewId) {
         reviewDetailMapper.deleteReviewRecmtBfReview(reviewId);
         reviewDetailMapper.deleteReviewCmtBfReview(reviewId);
@@ -41,42 +52,44 @@ public class ReviewDetailServiceImpl implements ReviewDetailService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = AddReviewException.class)
     public void registReviewComment(ReviewCommentDTO reviewCommentDTO) {
         reviewDetailMapper.insertReviewComment(reviewCommentDTO);
 
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = ModifyReviewException.class)
     public void modifyReviewComment(ReviewCommentDTO reviewCommentDTO) {
         reviewDetailMapper.updateReviewComment(reviewCommentDTO);
 
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = RemoveReviewException.class)
     public void removeReviewComment(int reviewCommentId) {
+        reviewDetailMapper.deleteReviewRecommentBfCmt(reviewCommentId);
         reviewDetailMapper.deleteReviewComment(reviewCommentId);
 
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = AddReviewException.class)
     public void registReviewRecomment(ReviewRecommentDTO reviewRecommentDTO) {
         reviewDetailMapper.insertReviewRecomment(reviewRecommentDTO);
 
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = ModifyReviewException.class)
     public void modifyReviewRecomment(ReviewRecommentDTO reviewRecommentDTO) {
         reviewDetailMapper.updateReviewRecomment(reviewRecommentDTO);
     }
 
     @Override
-    @Transactional
-    public void removeReviewRecomment(int reviewRecommentId) {
+    @Transactional(rollbackFor = RemoveReviewException.class)
+    public void removeReviewRecomment(int reviewRecommentId)
+    {
         reviewDetailMapper.deleteReviewRecomment(reviewRecommentId);
     }
 

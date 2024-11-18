@@ -2,7 +2,6 @@ package com.scsa.moin_back.review.mapper;
 
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewGroupDTO;
-import com.scsa.moin_back.review.dto.ReviewImgDTO;
 import com.scsa.moin_back.review.vo.ReviewImgVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -28,4 +27,6 @@ public interface ReviewMainMapper {
     List<ReviewDTO> getMyReviewList(HashMap<String, Object> map);
 
     int getMyReviewListCnt(HashMap<String, Object> map);
+
+    int chkDupReview(ReviewDTO reviewDTO);
 }
