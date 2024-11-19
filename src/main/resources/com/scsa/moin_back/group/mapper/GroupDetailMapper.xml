@@ -75,4 +75,11 @@
         WHERE G.GROUP_ID = #{groupId}
         AND L.ID = #{id}
     </select>
+
+    <select id="getCategoryNameById" resultType="java.lang.String">
+        SELECT category_name
+        FROM categories
+        WHERE category_id = #{categoryId}
+    </select>
+
 </mapper>

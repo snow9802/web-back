@@ -38,4 +38,6 @@ public interface GroupDetailMapper {
      * @return
      */
     MemberVO checkMemberLike(@Param("groupId") int groupId, @Param("id") String id);
+
+    String getCategoryNameById(@Param("categoryId") int categoryId);
 }
