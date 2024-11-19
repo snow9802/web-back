@@ -55,6 +55,8 @@ public class RegisterController {
             // 일단 인증번호 보낸 메일 저장
             session.setAttribute("sendEmail", emailMap.get("email"));
             session.setAttribute("code", code);
+            System.out.println(session.getAttribute("sendEmail"));
+            System.out.println(session.getAttribute("code"));
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,6 +74,7 @@ public class RegisterController {
             // 잘 인증되었으면 인증된 메일 저장
             String confirmedEmail = session.getAttribute("sendEmail").toString();
             session.setAttribute("confirmedEmail", confirmedEmail);
+            System.out.println(session.getAttribute("confirmedEmail"));
             session.removeAttribute("code");
             return ResponseEntity.ok().build();
         } catch (FindException e) {

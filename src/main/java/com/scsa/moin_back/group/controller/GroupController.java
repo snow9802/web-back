@@ -154,11 +154,14 @@ public class GroupController {
      * @param groupId
      * @return
      */
+    @CrossOrigin(origins = "http://localhost:3000", exposedHeaders = "Authorization")
     @GetMapping(value = {"/detail/{groupId}"})
     public ResponseEntity<GroupDetailDTO> getGroupDetail(@PathVariable Optional<Integer> groupId) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = securityUtil.getCurrentMemberId();
+
+        System.out.println(id);
 
         try{
             return ResponseEntity.ok(groupDetailService.getGroupDetail(groupId, id));

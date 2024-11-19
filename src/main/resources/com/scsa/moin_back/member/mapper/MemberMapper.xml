@@ -24,5 +24,16 @@
         WHERE id=#{id}
     </update>
 
+    <select id="getCategoryById" resultType="java.lang.String">
+        SELECT category_name
+        FROM categories
+        WHERE category_id=#{categoryId}
+    </select>
+
+    <select id="getmadeGroupNum" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM GROUPS
+        WHERE GROUP_LEADER_ID=#{id}
+    </select>
 
 </mapper>
