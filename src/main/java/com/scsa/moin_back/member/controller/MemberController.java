@@ -6,6 +6,7 @@ import com.scsa.moin_back.member.exception.FindException;
 import com.scsa.moin_back.member.service.JwtBlacklistService;
 import com.scsa.moin_back.member.service.MailService;
 import com.scsa.moin_back.member.service.MemberService;
+import com.scsa.moin_back.member.vo.MemberMyVO;
 import com.scsa.moin_back.member.vo.MemberVO;
 import com.scsa.moin_back.member.vo.TokenInfo;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,8 @@ public class MemberController {
     private final JwtTokenProvider tokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody MemberVO member) {
+    public ResponseEntity<MemberMyVO> login(@RequestBody MemberVO member) {
+        MemberMyVO memberMyVO = new MemberMyVO();
         try {
             TokenInfo token= memberService.login(member.getId(), member.getPassword());
             System.out.println(token);
@@ -47,9 +49,11 @@ public class MemberController {
             System.out.println(securityUtil.getCurrentMemberId());
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token.getAccessToken());
-            return new ResponseEntity<>("Login successful", headers, HttpStatus.OK);
+            memberMyVO = memberService.getMemberMyVO(member.getId());
+
+            return new ResponseEntity<>(memberMyVO, headers, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Login failed", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(memberMyVO, HttpStatus.UNAUTHORIZED);
         }
     }
 
