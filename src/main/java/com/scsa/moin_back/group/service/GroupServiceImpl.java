@@ -36,6 +36,9 @@ public class GroupServiceImpl implements IGroupService {
         int startRow = (curPage - 1) * ps + 1;
         int endRow = curPage * ps;
 
+        System.out.println(currentPage);
+        System.out.println(pageSize);
+
         /* SQL문 parameter로 넘길 map 형성 */
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("searchParam", searchParam);

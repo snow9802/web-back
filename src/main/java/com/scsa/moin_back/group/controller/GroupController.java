@@ -27,7 +27,7 @@ public class GroupController {
      * @param session
      * @return
      */
-    @GetMapping(value = {"/{category}/{currentPage}/{pageSize}", "/{currentPage}/{pageSize}"})
+    @GetMapping(value = {"/{category}/{currentPage}/{pageSize}", "/{currentPage}/{pageSize}", ""})
     public ResponseEntity<PageDTO<GroupDTO>> getGroups(HttpSession session,
                                        @PathVariable Optional<String> category,
                                        @PathVariable Optional<Integer> currentPage,
@@ -54,7 +54,7 @@ public class GroupController {
      * @param session
      * @return
      */
-    @GetMapping(value = {"/my/{currentPage}/{pageSize}", ""})
+    @GetMapping(value = {"/my/{currentPage}/{pageSize}", "/my"})
     public ResponseEntity<PageDTO<GroupDTO>> getMyGroups(HttpSession session,
                                                        @PathVariable Optional<Integer> currentPage,
                                                          @PathVariable Optional<Integer> pageSize) {
@@ -79,7 +79,7 @@ public class GroupController {
      * @param pageSize
      * @return
      */
-    @GetMapping(value = {"/my-participation/{currentPage}/{pageSize}", ""})
+    @GetMapping(value = {"/my-participation/{currentPage}/{pageSize}", "/my-participation"})
     public ResponseEntity<PageDTO<GroupDTO>> getMyParticipation(HttpSession session,
                                                          @PathVariable Optional<Integer> currentPage,
                                                          @PathVariable Optional<Integer> pageSize) {
@@ -103,7 +103,7 @@ public class GroupController {
      * @param pageSize
      * @return
      */
-    @GetMapping(value = {"/my-participation-past/{currentPage}/{pageSize}", ""})
+    @GetMapping(value = {"/my-participation-past/{currentPage}/{pageSize}", "/my-participation-past"})
     public ResponseEntity<PageDTO<GroupDTO>> getMyParticipationPast(HttpSession session,
                                                                 @PathVariable Optional<Integer> currentPage,
                                                                 @PathVariable Optional<Integer> pageSize) {
@@ -127,7 +127,7 @@ public class GroupController {
      * @param pageSize
      * @return
      */
-    @GetMapping(value = {"/my-like/{currentPage}/{pageSize}", ""})
+    @GetMapping(value = {"/my-like/{currentPage}/{pageSize}", "/my-like"})
     public ResponseEntity<PageDTO<GroupDTO>> getMyFavoriteGroups(HttpSession session,
                                                                     @PathVariable Optional<Integer> currentPage,
                                                                     @PathVariable Optional<Integer> pageSize) {

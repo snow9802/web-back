@@ -18,6 +18,7 @@ public class ReviewDTO {
     private int categoryId;
     private int groupId;
     private String reviewWriter;
+    private String id;
     private String reviewTitle;
     private String reviewContent;
     private String categoryName;

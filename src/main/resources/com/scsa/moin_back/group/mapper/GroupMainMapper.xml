@@ -7,6 +7,7 @@
     <resultMap id="GroupDTOResultMap" type="GroupDTO">
         <id column="GID" property="groupId"/>
         <result column="IS_CUR_USER_FAVORITE" property="isCurUserFavorite"/>
+        <result column="CATEGORY_NAME" property="categoryName"/>
         <association property="group" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
     </resultMap>
 
@@ -22,8 +23,11 @@
                     ELSE 'N'
                 END) AS IS_CUR_USER_FAVORITE,
                 G.*,
-                ROWNUM AS RNUM
+                ROWNUM AS RNUM,
+                C.CATEGORY_NAME
             FROM GROUPS G
+            JOIN CATEGORIES C
+            ON C.CATEGORY_ID = G.CATEGORY_ID
             WHERE G.DEL_YN = 'N'
             AND G.MANUAL_CLOSE_YN = 'N'
             AND G.CLOSE_DATE >= SYSDATE
@@ -112,8 +116,11 @@
             ELSE 'N'
             END) AS IS_CUR_USER_FAVORITE,
             G.*,
-            ROWNUM AS RNUM
+            ROWNUM AS RNUM,
+            C.CATEGORY_NAME
             FROM GROUPS G
+            JOIN CATEGORIES C
+            ON C.CATEGORY_ID = G.CATEGORY_ID
             WHERE G.DEL_YN = 'N'
             AND
             (
@@ -280,8 +287,11 @@
             ELSE 'N'
             END) AS IS_CUR_USER_FAVORITE,
             G.*,
-            ROWNUM AS RNUM
+            ROWNUM AS RNUM,
+            C.CATEGORY_NAME
             FROM GROUPS G
+            JOIN CATEGORIES C
+            ON C.CATEGORY_ID = G.CATEGORY_ID
             WHERE G.DEL_YN = 'N'
             AND G.GROUP_LEADER_ID = #{id}
             ORDER BY G.CREATED_AT
@@ -309,8 +319,11 @@
             WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
             ELSE 'N' END) AS IS_CUR_USER_FAVORITE,
             G.*,
-            ROWNUM AS RNUM
+            ROWNUM AS RNUM,
+            C.CATEGORY_NAME
             FROM GROUPS G
+            JOIN CATEGORIES C
+            ON C.CATEGORY_ID = G.CATEGORY_ID
             JOIN PARTICIPATION P
             ON P.GROUP_ID = G.GROUP_ID
             WHERE G.DEL_YN = 'N'
@@ -331,7 +344,7 @@
         AND P.ID = #{id}
     </select>
 
-    <!-- 내가 참여중인 모임 조회 -->
+    <!-- 내가 참여중인 지난 모임 조회 -->
     <select id="getMyParticipationPastGroups" parameterType="HashMap" resultMap="GroupDTOResultMap">
         SELECT *
         FROM
@@ -342,8 +355,11 @@
         WHEN G.GROUP_ID IN (SELECT INL.GROUP_ID FROM LIKES INL WHERE INL.ID = #{id}) THEN 'Y'
         ELSE 'N' END) AS IS_CUR_USER_FAVORITE,
         G.*,
-        ROWNUM AS RNUM
+        ROWNUM AS RNUM,
+        C.CATEGORY_NAME
         FROM GROUPS G
+        JOIN CATEGORIES C
+        ON C.CATEGORY_ID = G.CATEGORY_ID
         JOIN PARTICIPATION P
         ON P.GROUP_ID = G.GROUP_ID
         WHERE G.DEL_YN = 'N'
@@ -375,8 +391,11 @@
         G.GROUP_ID AS GID,
         'Y' AS IS_CUR_USER_FAVORITE,
         G.*,
-        ROWNUM AS RNUM
+        ROWNUM AS RNUM,
+        C.CATEGORY_NAME
         FROM GROUPS G
+        JOIN CATEGORIES C
+        ON C.CATEGORY_ID = G.CATEGORY_ID
         JOIN LIKES L
         ON L.GROUP_ID = G.GROUP_ID
         WHERE G.DEL_YN = 'N'
