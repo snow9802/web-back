@@ -4,114 +4,119 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.scsa.moin_back.review.mapper.ReviewMainMapper">
 
-<!--    &lt;!&ndash; ReviewVO 객체와 쿼리 결과 매핑 &ndash;&gt;-->
-<!--    <resultMap id="reviewResultMap" type="com.scsa.moin_back.review.vo.ReviewVO">-->
-<!--        <result property="reviewId" column="REVIEW_ID"/>-->
-<!--        <result property="reviewGroupId" column="REVIEW_GROUP_ID"/>-->
-<!--        <result property="participationId" column="PARTICIPATION_ID"/>-->
-<!--        <result property="reviewTitle" column="REVIEW_TITLE"/>-->
-<!--        <result property="reviewContent" column="REVIEW_CONTENT"/>-->
-<!--        <result property="createdAt" column="CREATED_AT"/>-->
-<!--    </resultMap>-->
+    <resultMap id="reviewGroupResultMap" type="com.scsa.moin_back.review.dto.ReviewGroupDTO">
+        <result property="categoryName" column="CATEGORY_NAME"/>
+        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
+    </resultMap>
 
-<!--    <select id="getReviewList" parameterType="map"  resultMap="reviewResultMap">-->
     <select id="getReviewList" parameterType="map"  resultType="com.scsa.moin_back.review.dto.ReviewDTO">
-WITH GROUP_DATA AS( /*모임 지역정보*/
-    SELECT C.CATEGORY_NAME
-         , C.CATEGORY_ID
-         , G.GROUP_ID
-         , G.GROUP_NAME
-         , G.CITY
-         , G.DISTRICT
-      FROM GROUPS G
-         , CATEGORIES C
-     WHERE G.CATEGORY_ID = C.CATEGORY_ID
-), REVIEW_THUMBNAIL AS( /*리뷰 첫번째 사진*/
-    SELECT REVIEW_ID, REVIEW_IMG_URL
-    FROM (
-        SELECT ROW_NUMBER() OVER(PARTITION BY REVIEW_ID ORDER BY REVIEW_IMG_ID) AS RN
-             , REVIEW_ID
-             , REVIEW_IMG_URL
-          FROM REVIEW_IMGS)
-    WHERE RN=1
-),REVIEW_DATA AS(
-    SELECT R.*
-         , RT.REVIEW_IMG_URL
-      FROM REVIEW R
-      LEFT OUTER JOIN REVIEW_THUMBNAIL RT
-        ON R.REVIEW_ID = RT.REVIEW_ID
-)
-    SELECT *
-      FROM (
-            SELECT RM.*
-                 , ROWNUM R
-              FROM (
-                    SELECT
-                        R.REVIEW_ID,
-                        R.REVIEW_GROUP_ID,
-                        (
-                            SELECT
-                                M.NICKNAME
-                            FROM
-                                PARTICIPATION P,
-                                MEMBERS       M
-                            WHERE P.ID = M.ID
-                              AND P.ID = R.ID
-                              AND R.REVIEW_GROUP_ID = P.GROUP_ID
-                              AND M.DEL_YN = 'N'
-                        ) AS REVIEW_WRITER,
-                        (
-                            SELECT
-                                (COALESCE(A.COMMENT_COUNT, 0) + COALESCE(B.RECOMMENT_COUNT, 0)) AS TOTAL_COMMENTS
-                            FROM
-                                (SELECT COUNT(1) AS COMMENT_COUNT
-                                 FROM REVIEW_COMMENTS RC
-                                 WHERE RC.REVIEW_ID = R.REVIEW_ID) A,
+    WITH GROUP_DATA AS( /*모임 지역정보*/
+        SELECT C.CATEGORY_NAME
+             , C.CATEGORY_ID
+             , G.GROUP_ID
+             , G.GROUP_NAME
+             , G.CITY
+             , G.DISTRICT
+          FROM GROUPS G
+             , CATEGORIES C
+         WHERE G.CATEGORY_ID = C.CATEGORY_ID
+    ), REVIEW_THUMBNAIL AS( /*리뷰 첫번째 사진*/
+        SELECT REVIEW_ID, REVIEW_IMG_URL
+        FROM (
+            SELECT ROW_NUMBER() OVER(PARTITION BY REVIEW_ID ORDER BY REVIEW_IMG_ID) AS RN
+                 , REVIEW_ID
+                 , REVIEW_IMG_URL
+              FROM REVIEW_IMGS)
+        WHERE RN=1
+    ),REVIEW_DATA AS(
+        SELECT R.*
+             , RT.REVIEW_IMG_URL
+          FROM REVIEW R
+          LEFT OUTER JOIN REVIEW_THUMBNAIL RT
+            ON R.REVIEW_ID = RT.REVIEW_ID
+    )
+        SELECT *
+          FROM (
+                SELECT RM.*
+                     , ROWNUM R
+                  FROM (
+                        SELECT
+                            R.REVIEW_ID,
+                            R.REVIEW_GROUP_ID,
+                            (
+                                SELECT
+                                    M.NICKNAME
+                                FROM
+                                    PARTICIPATION P,
+                                    MEMBERS       M
+                                WHERE P.ID = M.ID
+                                  AND P.ID = R.ID
+                                  AND R.REVIEW_GROUP_ID = P.GROUP_ID
+                                  AND M.DEL_YN = 'N'
+                            ) AS REVIEW_WRITER,
+                            (
+                                SELECT
+                                    (COALESCE(A.COMMENT_COUNT, 0) + COALESCE(B.RECOMMENT_COUNT, 0)) AS TOTAL_COMMENTS
+                                FROM
+                                    (SELECT COUNT(1) AS COMMENT_COUNT
+                                     FROM REVIEW_COMMENTS RC
+                                     WHERE RC.REVIEW_ID = R.REVIEW_ID) A,
 
-                                (SELECT COUNT(1) AS RECOMMENT_COUNT
-                                 FROM REVIEW_RECOMMENTS RCR
-                                 WHERE RCR.REVIEW_COMMENT_ID IN (SELECT REVIEW_COMMENT_ID
-                                                                  FROM REVIEW_COMMENTS
-                                                                  WHERE REVIEW_ID = R.REVIEW_ID)) B
-                      ) AS REVIEW_COMMENT_CNT
-                       , REVIEW_TITLE
-                       , REVIEW_CONTENT
-                       , R.CREATED_AT
-                       , GD.CITY
-                       , GD.DISTRICT
-                       , GD.CATEGORY_NAME
-                       , R.REVIEW_IMG_URL
-                    FROM REVIEW_DATA R
-                       , GROUP_DATA GD
-                   WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
-                    <if test="searchContent != null">
-                        AND ( R.REVIEW_CONTENT LIKE CONCAT('%', #{searchContent}, '%')
-                              OR R.REVIEW_TITLE LIKE CONCAT('%', #{searchContent}, '%'))
-                    </if>
-                    <if test="city != 'all'">
-                        AND GD.CITY = #{city}
-                    </if>
-                    <if test="district != 'all'">
-                        AND GD.DISTRICT = #{district}
-                    </if>
-                    <if test="categoryName != 'all'" >
-                        GD.CATEGORY_NAME = #{categoryName}
-                    </if>
-                   ORDER BY CREATED_AT DESC, REVIEW_TITLE
-                 ) RM
-         )
-         WHERE 1 = 1
-        <if test="startRow != null and endRow != null">
-            AND R BETWEEN #{startRow} AND #{endRow}
-        </if>
+                                    (SELECT COUNT(1) AS RECOMMENT_COUNT
+                                     FROM REVIEW_RECOMMENTS RCR
+                                     WHERE RCR.REVIEW_COMMENT_ID IN (SELECT REVIEW_COMMENT_ID
+                                                                      FROM REVIEW_COMMENTS
+                                                                      WHERE REVIEW_ID = R.REVIEW_ID)) B
+                          ) AS REVIEW_COMMENT_CNT
+                           , REVIEW_TITLE
+                           , REVIEW_CONTENT
+                           , R.CREATED_AT
+                           , GD.CITY
+                           , GD.DISTRICT
+                           , GD.CATEGORY_NAME
+                           , R.REVIEW_IMG_URL
+                        FROM REVIEW_DATA R
+                           , GROUP_DATA GD
+                       WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
+                        <if test="searchContent != null">
+                            AND ( R.REVIEW_CONTENT LIKE '%'||#{searchContent}||'%')
+                                  OR R.REVIEW_TITLE LIKE '%'||#{searchContent}||'%')
+                        </if>
+                        <if test="city != 'all'">
+                            AND GD.CITY = #{city}
+                        </if>
+                        <if test="district != 'all'">
+                            AND GD.DISTRICT = #{district}
+                        </if>
+                        <if test="categoryName != 'all'" >
+                            AND GD.CATEGORY_NAME = #{categoryName}
+                        </if>
+                       ORDER BY CREATED_AT DESC, REVIEW_TITLE
+                     ) RM
+             )
+             WHERE 1 = 1
+            <if test="startRow != null and endRow != null">
+                AND R BETWEEN #{startRow} AND #{endRow}
+            </if>
     </select>
 
 
     <select id="getReviewListCnt" parameterType="map"  resultType="int">
+            WITH GROUP_DATA AS( /*모임 지역정보*/
+        SELECT C.CATEGORY_NAME
+             , C.CATEGORY_ID
+             , G.GROUP_ID
+             , G.GROUP_NAME
+             , G.CITY
+             , G.DISTRICT
+          FROM GROUPS G
+             , CATEGORIES C
+         WHERE G.CATEGORY_ID = C.CATEGORY_ID
+        )
             SELECT /* Review main List Cnt Query */
                    COUNT(1)
               FROM REVIEW R
-                 , GROUPS GD
+                 , GROUP_DATA GD
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
             <if test="searchContent != null">
                 AND ( R.REVIEW_CONTENT LIKE CONCAT('%', #{searchContent}, '%')
@@ -123,5 +128,204 @@ WITH GROUP_DATA AS( /*모임 지역정보*/
             <if test="district != 'all'">
                 AND GD.DISTRICT = #{district}
             </if>
+            <if test="categoryName != 'all'" >
+                AND GD.CATEGORY_NAME = #{categoryName}
+            </if>
     </select>
+
+    <select id="getReviewGroup" parameterType="map"  resultMap="reviewGroupResultMap">
+        SELECT /* 후기 작성할 내모임 */
+                *
+          FROM (
+                SELECT ROWNUM RN, RG.*
+                  FROM (
+                        SELECT G.GROUP_ID
+                             , G.GROUP_IMG
+                             , (
+                                 SELECT C.CATEGORY_NAME
+                                   from CATEGORIES C
+                                  WHERE C.CATEGORY_ID = G.CATEGORY_ID
+                               ) CATEGORY_NAME
+                             , G.GROUP_NAME
+                             , G.INTRO_TEXT
+                             , G.GROUP_LIMIT
+                             , G.PARTICIPATION_COUNT
+                             , G.COMMENT_COUNT
+                          FROM PARTICIPATION P
+                             , GROUPS G
+                         WHERE P.GROUP_ID = G.GROUP_ID
+                           AND P.ID = #{id}
+                           AND G.DEL_YN = 'N'
+                           AND GROUP_DATE <![CDATA[ < ]]> SYSDATE
+                           AND G.GROUP_ID NOT IN (
+                                                 SELECT REVIEW_GROUP_ID
+                                                   FROM REVIEW
+                                                  WHERE ID = #{id}
+                                                 )
+                         ORDER BY CREATED_AT
+                    )RG
+                 )
+          WHERE RN BETWEEN #{startRow} AND #{endRow}
+    </select>
+
+    <select id="getReviewGroupCnt" parameterType="map" resultType="int">
+        SELECT /* 후기 작성할 내모임 갯수 */
+                COUNT(1)
+          FROM PARTICIPATION P
+             , GROUPS G
+         WHERE P.GROUP_ID = G.GROUP_ID
+           AND P.ID = #{id}
+           AND G.DEL_YN = 'N'
+           AND GROUP_DATE <![CDATA[ < ]]> SYSDATE
+           AND G.GROUP_ID NOT IN (
+                                 SELECT REVIEW_GROUP_ID
+                                   FROM REVIEW
+                                  WHERE ID = #{id}
+                                 )
+    </select>
+
+    <insert id="insertReview" parameterType="com.scsa.moin_back.review.dto.ReviewDTO">
+        <selectKey keyProperty="reviewId" resultType="int" order="BEFORE">
+            SELECT NVL(MAX(REVIEW_ID), 0) + 1 FROM REVIEW
+        </selectKey>
+        INSERT /* 리뷰 후기 등록 */
+          INTO REVIEW
+             ( REVIEW_ID
+             , REVIEW_GROUP_ID
+             , ID
+             , REVIEW_TITLE
+             , REVIEW_CONTENT
+             , CREATED_AT
+             )
+        VALUES ( #{reviewId}
+             , #{reviewGroupId}
+             , #{id}
+             , #{reviewTitle}
+             , #{reviewContent}
+             , SYSDATE
+             )
+    </insert>
+
+    <insert id="insertReviewImgs" parameterType="java.util.List">
+        <selectKey keyProperty="reviewImgId" resultType="int" order="BEFORE">
+            SELECT NVL(MAX(REVIEW_IMG_ID), 0) + 1 FROM REVIEW_IMGS
+        </selectKey>
+            INSERT /* 리뷰 후기 사진 등록 */
+              INTO REIVIEW_IMGS
+                 ( REVIEW_IMG_ID
+                 , REVIEW_ID
+                 , REVIEW_IMG_URL
+            VALUES
+        <foreach collection="list" item="reviewImg" separator=",">
+                ( #{reviewImgId}
+                 , #{reviewId}
+                 , #{reviewImgUrl}
+        </foreach>
+    </insert>
+
+    <update id="updateReview" parameterType="com.scsa.moin_back.review.dto.ReviewDTO">
+        UPDATE REVIEW
+           SET /* 리뷰 수정*/
+               REVIEW_TITLE = #{reviewTitle}
+             , REVIEW_CONTENT = #{reviewContent}
+         WHERE REVIEW_ID = #{reviewId}
+           AND ID = #{id}
+    </update>
+
+        <select id="getMyReviewList" parameterType="map"  resultType="com.scsa.moin_back.review.dto.ReviewDTO">
+    WITH GROUP_DATA AS( /*모임 지역정보*/
+        SELECT C.CATEGORY_NAME
+             , C.CATEGORY_ID
+             , G.GROUP_ID
+             , G.GROUP_NAME
+             , G.CITY
+             , G.DISTRICT
+          FROM GROUPS G
+             , CATEGORIES C
+         WHERE G.CATEGORY_ID = C.CATEGORY_ID
+    ), REVIEW_THUMBNAIL AS( /*리뷰 첫번째 사진*/
+        SELECT REVIEW_ID, REVIEW_IMG_URL
+        FROM (
+            SELECT ROW_NUMBER() OVER(PARTITION BY REVIEW_ID ORDER BY REVIEW_IMG_ID) AS RN
+                 , REVIEW_ID
+                 , REVIEW_IMG_URL
+              FROM REVIEW_IMGS)
+        WHERE RN=1
+    ),REVIEW_DATA AS(
+        SELECT R.*
+             , RT.REVIEW_IMG_URL
+          FROM REVIEW R
+          LEFT OUTER JOIN REVIEW_THUMBNAIL RT
+            ON R.REVIEW_ID = RT.REVIEW_ID
+    )
+        SELECT *
+          FROM (
+                SELECT RM.*
+                     , ROWNUM R
+                  FROM (
+                        SELECT
+                            R.REVIEW_ID,
+                            R.REVIEW_GROUP_ID,
+                            (
+                                SELECT
+                                    M.NICKNAME
+                                FROM
+                                    PARTICIPATION P,
+                                    MEMBERS       M
+                                WHERE P.ID = M.ID
+                                  AND P.ID = R.ID
+                                  AND R.REVIEW_GROUP_ID = P.GROUP_ID
+                                  AND M.DEL_YN = 'N'
+                            ) AS REVIEW_WRITER,
+                            (
+                                SELECT
+                                    (COALESCE(A.COMMENT_COUNT, 0) + COALESCE(B.RECOMMENT_COUNT, 0)) AS TOTAL_COMMENTS
+                                FROM
+                                    (SELECT COUNT(1) AS COMMENT_COUNT
+                                     FROM REVIEW_COMMENTS RC
+                                     WHERE RC.REVIEW_ID = R.REVIEW_ID) A,
+
+                                    (SELECT COUNT(1) AS RECOMMENT_COUNT
+                                     FROM REVIEW_RECOMMENTS RCR
+                                     WHERE RCR.REVIEW_COMMENT_ID IN (SELECT REVIEW_COMMENT_ID
+                                                                      FROM REVIEW_COMMENTS
+                                                                      WHERE REVIEW_ID = R.REVIEW_ID)) B
+                          ) AS REVIEW_COMMENT_CNT
+                           , REVIEW_TITLE
+                           , REVIEW_CONTENT
+                           , R.CREATED_AT
+                           , GD.CITY
+                           , GD.DISTRICT
+                           , GD.CATEGORY_NAME
+                           , R.REVIEW_IMG_URL
+                        FROM REVIEW_DATA R
+                           , GROUP_DATA GD
+                       WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
+                         AND R.ID = #{id}
+                       ORDER BY CREATED_AT DESC, REVIEW_TITLE
+                     ) RM
+             )
+             WHERE 1 = 1
+            <if test="startRow != null and endRow != null">
+                AND R BETWEEN #{startRow} AND #{endRow}
+            </if>
+    </select>
+
+
+    <select id="getMyReviewListCnt" parameterType="map"  resultType="int">
+            SELECT /* Review main List Cnt Query */
+                   COUNT(1)
+              FROM REVIEW R
+                 , GROUPS GD
+             WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
+               AND R.ID = #{id}
+    </select>
+    <select id="chkDupReview" parameterType="map" resultType="int">
+          SELECT COUNT(1)
+            FROM REVIEW
+           WHERE ID = #{id}
+             AND REVIEW_GROUP_ID = #{reviewGroupId}
+    </select>
+
+
 </mapper>
