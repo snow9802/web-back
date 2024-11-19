@@ -1,6 +1,7 @@
 package com.scsa.moin_back.review.controller;
 
 import com.scsa.moin_back.common.dto.PageDTO;
+import com.scsa.moin_back.member.config.SecurityUtil;
 import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.service.ReviewService;
@@ -18,8 +19,9 @@ import java.util.Optional;
 @RequestMapping("/my")
 @RequiredArgsConstructor
 public class ReviewMypageController {
-        private final ReviewService reviewService;
+    private final ReviewService reviewService;
     private final ReviewExceptionHandler reviewExceptionHandler;
+    private final SecurityUtil securityUtil;
 
     /**
      * 마이페이지 내 리뷰 조회
@@ -34,8 +36,7 @@ public class ReviewMypageController {
             @PathVariable Optional<Integer> pageSize,
             HttpSession httpSession
     ) throws Exception {
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }

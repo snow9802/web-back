@@ -1,6 +1,7 @@
 package com.scsa.moin_back.review.controller;
 
 import com.scsa.moin_back.common.dto.PageDTO;
+import com.scsa.moin_back.member.config.SecurityUtil;
 import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class ReviewMainController {
     private final ReviewService reviewService;
     private final ReviewExceptionHandler reviewExceptionHandler;
+    private final SecurityUtil securityUtil;
     /*insert:regist, delete:remove, update:modify, select:search/get*/
     /*
      * POST
@@ -75,8 +77,7 @@ public class ReviewMainController {
         int cp = currentPage.orElse(1);
         int ps = pageSize.orElse(5); //한 화면에 보여줄 페이지수 5
         /*로그인한 사용자 아니면 뱉음*/
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -96,8 +97,7 @@ public class ReviewMainController {
     @GetMapping(value = {"/regist/{groupId}"})
     public ResponseEntity getReviewGroup(@PathVariable int groupId, HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -116,8 +116,7 @@ public class ReviewMainController {
     public ResponseEntity registReview(
             @RequestBody ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        String id = (String)httpSession.getAttribute("id");
-        id="user10";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -140,8 +139,7 @@ public class ReviewMainController {
             @PathVariable int reviewId
             , HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -161,8 +159,7 @@ public class ReviewMainController {
             @RequestBody ReviewDTO reviewDTO
             , HttpSession httpSession) throws ModifyReviewException {
         /*로그인한 사용자 아니면 뱉음*/
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
