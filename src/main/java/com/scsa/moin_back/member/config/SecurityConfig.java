@@ -47,8 +47,8 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/group", "/register/*", "/member/login").permitAll() // 특정 경로 허용
-                .antMatchers("/**").hasAuthority("USER")
+                .antMatchers("/**").permitAll() // 특정 경로 허용
+//                .antMatchers("/**").hasAuthority("USER")
                 .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
@@ -69,8 +69,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
 
 
 }
