@@ -7,6 +7,7 @@ import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.service.IGroupDetailService;
 import com.scsa.moin_back.group.service.IGroupService;
 import com.scsa.moin_back.group.vo.GroupVO;
+import com.scsa.moin_back.member.config.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.Optional;
 public class GroupController {
     private final IGroupService groupService;
     private final IGroupDetailService groupDetailService;
+    private final SecurityUtil securityUtil;
 
     /**
      * 모임 목록 조회 (메인)
@@ -40,7 +42,8 @@ public class GroupController {
 
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String userId = "testId";
+        String userId = securityUtil.getCurrentMemberId();
+        System.out.println(userId);
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getGroups(userId, currentPage, pageSize, category, searchParam, city, district, isActive);
@@ -62,7 +65,7 @@ public class GroupController {
 
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String userId = "user01";
+        String userId = securityUtil.getCurrentMemberId();
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyGroups(userId, currentPage, pageSize);
@@ -87,7 +90,7 @@ public class GroupController {
 
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String userId = "user01";
+        String userId = securityUtil.getCurrentMemberId();
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyParticipationGroups(userId, currentPage, pageSize);
@@ -111,7 +114,7 @@ public class GroupController {
 
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String userId = "user01";
+        String userId = securityUtil.getCurrentMemberId();
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyParticipationPastGroups(userId, currentPage, pageSize);
@@ -135,7 +138,7 @@ public class GroupController {
 
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String userId = "user01";
+        String userId = securityUtil.getCurrentMemberId();
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyFavoriteGroups(userId, currentPage, pageSize);
@@ -155,7 +158,7 @@ public class GroupController {
     public ResponseEntity<GroupDetailDTO> getGroupDetail(@PathVariable Optional<Integer> groupId) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String id = "testId";
+        String id = securityUtil.getCurrentMemberId();
 
         try{
             return ResponseEntity.ok(groupDetailService.getGroupDetail(groupId, id));
@@ -184,7 +187,7 @@ public class GroupController {
                                               @RequestPart MultipartFile fileImg) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String id = "user01";
+        String id = securityUtil.getCurrentMemberId();
         group.setGroupLeaderId(id);
 
         return groupService.registGroup(group, fileImg);
@@ -245,7 +248,7 @@ public class GroupController {
     public ResponseEntity<Object> likeGroup(@RequestBody HashMap<String, Object> paramMap){
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String id = "user01";
+        String id = securityUtil.getCurrentMemberId();
         paramMap.put("id", id);
         try {
             return groupService.registLikeGroup(paramMap);
@@ -263,7 +266,7 @@ public class GroupController {
     public ResponseEntity<Object> unlikeGroup(@RequestBody HashMap<String, Object> paramMap){
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String id = "user01";
+        String id = securityUtil.getCurrentMemberId();
         paramMap.put("id", id);
         try{
             return groupService.removeLikeGroup(paramMap);
