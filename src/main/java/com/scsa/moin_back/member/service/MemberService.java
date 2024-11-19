@@ -4,6 +4,7 @@ import com.scsa.moin_back.member.config.JwtTokenProvider;
 
 import com.scsa.moin_back.member.exception.FindException;
 import com.scsa.moin_back.member.mapper.MemberMapper;
+import com.scsa.moin_back.member.vo.MemberMyVO;
 import com.scsa.moin_back.member.vo.MemberVO;
 import com.scsa.moin_back.member.vo.TokenInfo;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,23 @@ public class MemberService implements MemberServiceInterface{
         System.out.println(tokenInfo);
 
         return tokenInfo;
+    }
+
+    @Override
+    public MemberMyVO getMemberMyVO(String id) throws FindException {
+        MemberMyVO memberMyVO = new MemberMyVO();
+        MemberVO member = memberMapper.findById(id);
+
+        memberMyVO.setProfileUrl(member.getProfileUrl());
+        memberMyVO.setNickname(member.getNickname());
+
+        String favCategoryName = memberMapper.getCategoryById(member.getFavCategoryId());
+        memberMyVO.setFavCategoryName(favCategoryName);
+
+        int madeGroupNum = memberMapper.getmadeGroupNum(id);
+        memberMyVO.setMadeGroupNumber(madeGroupNum);
+
+        return memberMyVO;
     }
 
     @Override

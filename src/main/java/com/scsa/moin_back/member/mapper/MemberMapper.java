@@ -9,4 +9,6 @@ public interface MemberMapper {
     String getIdByNameEmail(MemberVO member);
     MemberVO getMemberByIdEmail(MemberVO member);
     void modifyPassword(MemberVO member);
+    String getCategoryById(int categoryId);
+    int getmadeGroupNum(String id);
 }
