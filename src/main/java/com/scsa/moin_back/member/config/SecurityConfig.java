@@ -60,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // 여기에 자원 공유를 허락할 주소 적기
+        configuration.setAllowedOriginPatterns(List.of("*")); // 여기에 자원 공유를 허락할 주소 적기
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
