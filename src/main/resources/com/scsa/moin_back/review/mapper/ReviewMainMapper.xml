@@ -102,10 +102,21 @@
 
 
     <select id="getReviewListCnt" parameterType="map"  resultType="int">
+            WITH GROUP_DATA AS( /*모임 지역정보*/
+        SELECT C.CATEGORY_NAME
+             , C.CATEGORY_ID
+             , G.GROUP_ID
+             , G.GROUP_NAME
+             , G.CITY
+             , G.DISTRICT
+          FROM GROUPS G
+             , CATEGORIES C
+         WHERE G.CATEGORY_ID = C.CATEGORY_ID
+        )
             SELECT /* Review main List Cnt Query */
                    COUNT(1)
               FROM REVIEW R
-                 , GROUPS GD
+                 , GROUP_DATA GD
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
             <if test="searchContent != null">
                 AND ( R.REVIEW_CONTENT LIKE CONCAT('%', #{searchContent}, '%')
@@ -308,6 +319,12 @@
                  , GROUPS GD
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
                AND R.ID = #{id}
+    </select>
+    <select id="chkDupReview" parameterType="map" resultType="int">
+          SELECT COUNT(1)
+            FROM REVIEW
+           WHERE ID = #{id}
+             AND REVIEW_GROUP_ID = #{reviewGroupId}
     </select>
 
 

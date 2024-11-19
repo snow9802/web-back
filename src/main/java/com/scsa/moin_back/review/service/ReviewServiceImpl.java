@@ -1,8 +1,10 @@
 package com.scsa.moin_back.review.service;
 
 import com.scsa.moin_back.common.dto.PageDTO;
-import com.scsa.moin_back.group.dto.GroupDTO;
-import com.scsa.moin_back.review.dto.*;
+import com.scsa.moin_back.review.dto.ReviewDTO;
+import com.scsa.moin_back.review.dto.ReviewDetailDTO;
+import com.scsa.moin_back.review.dto.ReviewGroupDTO;
+import com.scsa.moin_back.review.dto.ReviewImgDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
 import com.scsa.moin_back.review.mapper.ReviewDetailMapper;
@@ -10,15 +12,11 @@ import com.scsa.moin_back.review.mapper.ReviewMainMapper;
 import com.scsa.moin_back.review.vo.ReviewImgVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +27,7 @@ import java.util.Map;
 public class ReviewServiceImpl implements ReviewService {
 
     final private ReviewMainMapper reviewMainMapper;
+    private final ReviewDetailMapper reviewDetailMapper;
 
     @Override
     public PageDTO<ReviewDTO> getReviewList(Map<String, Object> map, int currentPage, int pageSize) {
@@ -69,7 +68,17 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional(rollbackFor = AddReviewException.class)
     public void addReview(ReviewDTO reviewDTO) throws AddReviewException {
-        ReviewDTO reviewDto = new ReviewDTO();
+        /* 리뷰DTO 유효성검사 */
+        if(reviewDTO.getReviewContent() == null ||
+                reviewDTO.getReviewTitle() == null ||
+                reviewDTO.getReviewGroupId() == 0 ||
+                reviewDTO.getId() == null ||
+                reviewMainMapper.chkDupReview(reviewDTO) > 0)
+        {
+            throw new AddReviewException("유효하지 않은 데이터 혹은 중복된 데이터가 입력되었습니다");
+        }
+
+
         try {
             reviewMainMapper.insertReview(reviewDTO);
             List<ReviewImgVO> reviewImgList = reviewDTO.getReviewImgList();
@@ -84,18 +93,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewDTO chkValidReview(String id, int reviewId) {
-        return null;
-    }
-
-    @Override
     @Transactional(rollbackFor = ModifyReviewException.class)
     public void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException {
         ReviewDTO reviewDto = new ReviewDTO();
         try {
             reviewMainMapper.updateReview(reviewDTO);
         } catch (Exception e) {
-            throw new ModifyReviewException(e.getMessage());
+            throw new ModifyReviewException("리뷰  수정 중 에러가 발생했습니다");
         }
     }
 
@@ -113,6 +117,14 @@ public class ReviewServiceImpl implements ReviewService {
         int pageGroupSize = 5; //페이지그룹의 페이지 수 ex)현재페이지 1인경우 1 2 3
         return new PageDTO<ReviewDTO>(pageSize, pageGroupSize, currentPage, totalCnt, list);
 
+    }
+
+    @Override
+    public ReviewDetailDTO getReviewModify(String id, int reviewId) {
+        ReviewDetailDTO reviewDetailDTO = reviewDetailMapper.getReviewDetail(reviewId);
+        List<ReviewImgDTO> reviewImgList = reviewDetailMapper.getReviewImages(reviewId);
+        reviewDetailDTO.setReviewImgList(reviewImgList);
+        return reviewDetailDTO;
     }
 
 

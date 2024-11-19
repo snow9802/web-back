@@ -4,6 +4,7 @@ import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewCommentDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
+import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.RemoveReviewException;
 import com.scsa.moin_back.review.service.ReviewDetailService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class ReviewDetailController {
     @GetMapping(value = {"/{reviewId}"})
     public ResponseEntity<ReviewDetailDTO> getReviewDetail(
             @PathVariable int reviewId
-    ) {
+    ) throws FindReviewException {
         ReviewDetailDTO reviewDetail = reviewDetailService.getReviewDetail(reviewId);
         return ResponseEntity.ok(reviewDetail);
     }
@@ -49,10 +50,7 @@ public class ReviewDetailController {
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
-
         reviewDetailService.removeReview(reviewId);
-
-        /*리뷰 아이디 파라미터로 받아서 delete구문*/
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -111,7 +109,7 @@ public class ReviewDetailController {
     @DeleteMapping(value={"/comment/{reviewCommentId}"})
     public ResponseEntity removeReviewComment(
             @PathVariable int reviewCommentId
-    ){
+    ) throws RemoveReviewException{
 
         reviewDetailService.removeReviewComment(reviewCommentId);
 
@@ -174,7 +172,7 @@ public class ReviewDetailController {
     @DeleteMapping(value={"/recomment/{reviewRecommentId}"})
     public ResponseEntity removeReviewRecomment(
             @PathVariable int reviewRecommentId
-    ){
+    ) throws RemoveReviewException {
         reviewDetailService.removeReviewRecomment(reviewRecommentId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

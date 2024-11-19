@@ -1,9 +1,6 @@
 package com.scsa.moin_back.review.mapper;
 
-import com.scsa.moin_back.review.dto.ReviewCommentDTO;
-import com.scsa.moin_back.review.dto.ReviewDetailDTO;
-import com.scsa.moin_back.review.dto.ReviewGroupDTO;
-import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
+import com.scsa.moin_back.review.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -14,6 +11,7 @@ public interface ReviewDetailMapper {
         ReviewGroupDTO getReviewGroup(int groupId);
         ReviewGroupDTO getReviewRecGroup(int categoryId);
         List<ReviewCommentDTO> getReviewComment(int reviewId);
+        List<ReviewImgDTO> getReviewImages(int reviewId);
         void deleteReviewRecmtBfReview(int reviewId);
         void deleteReviewImgsBfReview(int reviewId);
         void deleteReviewCmtBfReview(int reviewId);
@@ -24,6 +22,7 @@ public interface ReviewDetailMapper {
         void insertReviewRecomment(ReviewRecommentDTO reviewRecommentDTO);
         void updateReviewComment(ReviewCommentDTO reviewCommentDTO);
         void updateReviewRecomment(ReviewRecommentDTO reviewRecommentDTO);
+        void deleteReviewRecommentBfCmt(int reviewCommentId);
         void deleteReviewComment(int reviewId);
         void deleteReviewRecomment(int recommentId);
 

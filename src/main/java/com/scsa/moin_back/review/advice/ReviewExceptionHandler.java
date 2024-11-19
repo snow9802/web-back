@@ -1,8 +1,6 @@
 package com.scsa.moin_back.review.advice;
 
-import com.scsa.moin_back.review.exception.AddReviewException;
-import com.scsa.moin_back.review.exception.FindReviewException;
-import com.scsa.moin_back.review.exception.UnauthorizedException;
+import com.scsa.moin_back.review.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,7 +22,7 @@ public class ReviewExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAddException(AddReviewException e) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "INTERNAL_SERVER_ERROR");
-        response.put("message", e.getMessage());
+        response.put("message", "리뷰 데이터 등록 중 에러가 발생했습니다. 등록이 취소되었습니다.\n"+e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -37,7 +35,33 @@ public class ReviewExceptionHandler {
     public ResponseEntity<Map<String, String>> handleFindException(FindReviewException e) {
         Map<String, String> response = new HashMap<>();
         response.put("error", "BAD_REQUEST");
-        response.put("message", e.getMessage());
+        response.put("message", "리뷰 데이터를 가져오는데 문제가 발생했습니다.\n"+e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 수정오류
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(ModifyReviewException.class)
+    public ResponseEntity<Map<String, String>> handleFindException(ModifyReviewException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BAD_REQUEST");
+        response.put("message", "리뷰 데이터 수정 중 문제가 발생했습니다. 수정이 취소되었습니다.\n"+e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 삭제오류
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(RemoveReviewException.class)
+    public ResponseEntity<Map<String, String>> handleFindException(RemoveReviewException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BAD_REQUEST");
+        response.put("message", "리뷰 데이터 삭제 중 문제가 발생했습니다. 삭제가 취소되었습니다.\n"+e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

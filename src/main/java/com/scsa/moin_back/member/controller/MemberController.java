@@ -1,11 +1,13 @@
 package com.scsa.moin_back.member.controller;
 
 import com.scsa.moin_back.member.config.JwtTokenProvider;
+import com.scsa.moin_back.member.config.SecurityUtil;
 import com.scsa.moin_back.member.exception.FindException;
-import com.scsa.moin_back.member.mapper.MemberMapper;
+import com.scsa.moin_back.member.service.JwtBlacklistService;
 import com.scsa.moin_back.member.service.MailService;
 import com.scsa.moin_back.member.service.MemberService;
 import com.scsa.moin_back.member.vo.MemberVO;
+import com.scsa.moin_back.member.vo.TokenInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
@@ -29,38 +33,57 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
+    private final SecurityUtil securityUtil;
     private final JwtTokenProvider jwtTokenProvider;
     private final MailService mailService;
+    private final JwtTokenProvider tokenProvider;
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody MemberVO member) {
         try {
-            memberService.login(member.getId(), member.getPassword());
-            String token = jwtTokenProvider.createToken(member.getId());
+            TokenInfo token= memberService.login(member.getId(), member.getPassword());
+            System.out.println(token);
+//            String token = jwtTokenProvider.createToken(member.getId());
+            System.out.println(securityUtil.getCurrentMemberId());
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token.getAccessToken());
             return new ResponseEntity<>("Login successful", headers, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Login failed", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    // 쿠키 가져와서 만료시켜버리기 settime
+    // 로그아웃 시 토큰을 블랙리스트에 추가하거나 만료시킴
     @GetMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 요청 헤더에서 JWT 토큰 가져오기
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-//        System.out.println(token);
         if (token != null && token.startsWith("Bearer ")) {
-            jwtTokenProvider.invalidateToken(token.substring(7));
+            // JWT 토큰에서 "Bearer " 제거하고 실제 토큰만 추출
+            String jwtToken = token.substring(7);
+
+            // JWT 토큰을 블랙리스트에 추가하는 로직 (예시로 invalidateToken 메서드 호출)
+            tokenProvider.invalidateToken(jwtToken); // 예시 메서드
+
+            // 클라이언트 측에서 쿠키나 로컬 스토리지에서 JWT 토큰을 제거하는 로직 필요
+            // 쿠키에 저장된 토큰 삭제 (예시: HttpOnly 쿠키로 설정된 경우)
+            Cookie cookie = new Cookie("token", null);
+            cookie.setPath("/");
+            cookie.setMaxAge(0); // 쿠키 삭제
+            response.addCookie(cookie);
+
             return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
         }
-        return new ResponseEntity<>("No token provided", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("이미 로그아웃 상태입니다.", HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/id-search")
     public ResponseEntity<String> idSearch(@RequestBody MemberVO member, HttpServletRequest request) {
         // 접속되어있는 아이디와 입력한 아이디 동일한지 확인
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (token == null) {
+            return new ResponseEntity<>("No token provided", HttpStatus.UNAUTHORIZED);
+        }
         token = token.substring(7); // "Bearer " 제거
         String id = jwtTokenProvider.getUserIdFromToken(token);
         System.out.println(id);

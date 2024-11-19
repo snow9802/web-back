@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scsa.moin_back.member.mapper.JwtBlacklistMapper">
+    <!-- 블랙리스트에 토큰 추가 -->
+    <insert id="insertBlacklistToken" parameterType="String">
+        INSERT INTO blacklist
+        VALUES (#{token})
+    </insert>
+
+    <!-- 블랙리스트에서 토큰 존재 여부 확인 -->
+    <select id="isTokenBlacklisted" resultType="boolean" parameterType="String">
+        SELECT COUNT(*)
+        FROM blacklist
+        WHERE token = #{token}
+    </select>
+
+</mapper>

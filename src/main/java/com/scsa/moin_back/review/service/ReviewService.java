@@ -1,8 +1,8 @@
 package com.scsa.moin_back.review.service;
 
 import com.scsa.moin_back.common.dto.PageDTO;
-import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.review.dto.ReviewDTO;
+import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewGroupDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
@@ -51,14 +51,6 @@ public interface ReviewService {
     void addReview(ReviewDTO reviewDTO) throws AddReviewException;
 
     /**
-     * 유효한 리뷰 여부 확인
-     * @param id
-     * @param reviewId
-     * @return
-     */
-    ReviewDTO chkValidReview(String id, int reviewId);
-
-    /**
      * 리뷰 수정
      * @param reviewDTO
      */
@@ -71,4 +63,12 @@ public interface ReviewService {
      * @return
      */
     PageDTO<ReviewDTO> getMyPageReviewList(String id, Integer curPage, Integer pageSize);
+
+    /**
+     * 수정페이지 불러오기
+     * @param id
+     * @param reviewId
+     * @return
+     */
+    ReviewDetailDTO getReviewModify(String id, int reviewId);
 }
