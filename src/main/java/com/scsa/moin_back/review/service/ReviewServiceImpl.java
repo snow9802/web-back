@@ -13,6 +13,7 @@ import com.scsa.moin_back.review.vo.ReviewImgVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
@@ -66,27 +67,31 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @Transactional(rollbackFor = AddReviewException.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void addReview(ReviewDTO reviewDTO) throws AddReviewException {
         /* 리뷰DTO 유효성검사 */
-        if(reviewDTO.getReviewContent() == null ||
+        if (reviewDTO.getReviewContent() == null ||
                 reviewDTO.getReviewTitle() == null ||
                 reviewDTO.getReviewGroupId() == 0 ||
                 reviewDTO.getId() == null ||
-                reviewMainMapper.chkDupReview(reviewDTO) > 0)
-        {
+                reviewMainMapper.chkDupReview(reviewDTO) > 0) {
             throw new AddReviewException("유효하지 않은 데이터 혹은 중복된 데이터가 입력되었습니다");
         }
-
-
         try {
             reviewMainMapper.insertReview(reviewDTO);
+        } catch (Exception e) {
+            throw new AddReviewException(e.getMessage());
+
+        }
+
+        try {
             List<ReviewImgVO> reviewImgList = reviewDTO.getReviewImgList();
             if (reviewImgList != null && !reviewImgList.isEmpty()) {
-                reviewMainMapper.insertReviewImgs(reviewDTO.getReviewImgList());
+                for (ReviewImgVO reviewImgVO : reviewImgList) {
+                    reviewImgVO.setReviewId(reviewDTO.getReviewId());
+                    reviewMainMapper.insertReviewImgs(reviewImgVO);
+                }
             }
-
-
         } catch (Exception e) {
             throw new AddReviewException(e.getMessage());
         }

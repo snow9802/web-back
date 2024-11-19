@@ -53,6 +53,8 @@
         <result property="reviewId" column="REVIEW_ID"/>
         <result property="commentContent" column="COMMENT_CONTENT"/>
         <result property="rcWriter" column="RC_WRITER"/>
+        <result property="rcWriterId" column="RC_WRITER_ID"/>
+        <result property="rcProfileUrl" column="RC_PROFILE_URL"/>
         <result property="rcCreatedAt" column="RC_CREATED_AT"/>
 
         <collection property="reviewRecommentList" ofType="com.scsa.moin_back.review.dto.ReviewRecommentDTO">
@@ -60,6 +62,8 @@
             <result property="reviewCommentId" column="REVIEW_COMMENT_ID"/>
             <result property="recommentContent" column="RECOMMENT_CONTENT"/>
             <result property="rrcWriter" column="RRC_WRITER"/>
+            <result property="rrcWriterId" column="RRC_WRITER_ID"/>
+            <result property="rrcProfileUrl" column="RRC_PROFILE_URL"/>
             <result property="rrcCreatedAt" column="RRC_CREATED_AT"/>
         </collection>
     </resultMap>
@@ -121,6 +125,7 @@
                , PM.NICKNAME
                , PM.PROFILE_URL
                , PM.ID
+               , PM.PARTICIPATION_ID
            FROM GROUPS G
               , PARTICIPATION_MEMBER PM
           WHERE G.GROUP_ID = #{groupId}
@@ -140,6 +145,7 @@
                , PM.NICKNAME
                , PM.PROFILE_URL
                , PM.ID
+               , PM.PARTICIPATION_ID
             FROM (
                   SELECT /* 같은 카테고리의 추천 모임 (최신) */
                          REC_GRP.*
