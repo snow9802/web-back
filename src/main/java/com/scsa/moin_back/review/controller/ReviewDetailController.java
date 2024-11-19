@@ -1,5 +1,6 @@
 package com.scsa.moin_back.review.controller;
 
+import com.scsa.moin_back.member.config.SecurityUtil;
 import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewCommentDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
@@ -21,6 +22,7 @@ public class ReviewDetailController {
 
     private final ReviewDetailService reviewDetailService;
     private final ReviewExceptionHandler reviewExceptionHandler;
+    private final SecurityUtil securityUtil;
 
 
      /** 리뷰 상세 페이지 이동
@@ -45,8 +47,7 @@ public class ReviewDetailController {
             HttpSession httpSession,
             @PathVariable int reviewId
     ) throws RemoveReviewException {
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -64,8 +65,7 @@ public class ReviewDetailController {
             @RequestParam("commentContent") String commentContent
             , HttpSession httpSession
 ){
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -87,8 +87,7 @@ public class ReviewDetailController {
             @PathVariable int reviewCommentId,
             @RequestParam("commentContent") String commentContent
             , HttpSession httpSession    ){
-        String id = (String)httpSession.getAttribute("id");
-        id="user02";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -126,8 +125,7 @@ public class ReviewDetailController {
             @RequestParam("recommentContent") String recommentContent,
             HttpSession httpSession
     ){
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
@@ -151,8 +149,7 @@ public class ReviewDetailController {
             @RequestParam("recommentContent") String recommentContent,
             HttpSession httpSession
     ){
-        String id = (String)httpSession.getAttribute("id");
-        id="user01";
+        String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }

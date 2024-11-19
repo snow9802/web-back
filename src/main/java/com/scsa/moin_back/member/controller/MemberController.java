@@ -78,22 +78,9 @@ public class MemberController {
     }
 
     @PostMapping("/id-search")
-    public ResponseEntity<String> idSearch(@RequestBody MemberVO member, HttpServletRequest request) {
-        // 접속되어있는 아이디와 입력한 아이디 동일한지 확인
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (token == null) {
-            return new ResponseEntity<>("No token provided", HttpStatus.UNAUTHORIZED);
-        }
-        token = token.substring(7); // "Bearer " 제거
-        String id = jwtTokenProvider.getUserIdFromToken(token);
-        System.out.println(id);
+    public ResponseEntity<String> idSearch(@RequestBody MemberVO member) {
         try{
             String foundId = memberService.getIdByNameEmail(member);
-//            System.out.println(foundId);
-            if (id == null || !id.equals(foundId)) {
-                // 사용자 인증 불가하거나 입력된 정보 id와 동일하지 않다면
-                return ResponseEntity.badRequest().build();
-            }
             return new ResponseEntity<>("Found id: " + foundId, HttpStatus.OK);
         } catch (FindException e) {
             e.printStackTrace();
@@ -103,17 +90,9 @@ public class MemberController {
 
     // 인증번호 받기
     @PostMapping("/send-code")
-    public ResponseEntity mailConfirm(@RequestBody MemberVO member, HttpSession session, HttpServletRequest request) {
+    public ResponseEntity mailConfirm(@RequestBody MemberVO member, HttpSession session) {
         try {
-            // 접속되어있는 아이디와 입력한 아이디 동일한지 확인
-            String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-            token = token.substring(7); // "Bearer " 제거
-            String id = jwtTokenProvider.getUserIdFromToken(token);
-            if (id == null || !id.equals(member.getId())) {
-                // 사용자 인증 불가하거나 입력한 아이디와 동일하지 않다면
-                return ResponseEntity.badRequest().build();
-            }
-
+            session.setAttribute("changePwdId", member.getId());
             // 아이디랑 이메일 일치하는 회원 있는지 확인
             MemberVO m = memberService.getMemberByIdEmail(member);
             if (m == null) {
@@ -152,14 +131,7 @@ public class MemberController {
 
     // 비밀번호 변경하기 버튼
     @PostMapping("/reset-button")
-    public ResponseEntity resetButton(@RequestBody MemberVO member, HttpSession session, HttpServletRequest request) {
-        // 사용자 인증 후 아이디 동일한지 확인
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        token = token.substring(7); // "Bearer " 제거
-        String id = jwtTokenProvider.getUserIdFromToken(token);
-        if (id == null || !id.equals(member.getId())) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity resetButton(@RequestBody MemberVO member, HttpSession session) {
         // 이메일 인증된 이메일인지 확인
         String confirmedEmail = (String) session.getAttribute("confirmedEmail");
         if (confirmedEmail == null || !member.getEmail().equals(confirmedEmail)){
@@ -169,14 +141,13 @@ public class MemberController {
     }
 
     @PostMapping("/pwd-reset")
-    public ResponseEntity pwdReset(@RequestBody Map<String, String> newPasswordMap, HttpSession session, HttpServletRequest request) {
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-        token = token.substring(7); // "Bearer " 제거
-        String id = jwtTokenProvider.getUserIdFromToken(token);
+    public ResponseEntity pwdReset(@RequestBody Map<String, String> newPasswordMap, HttpSession session) {
+        String changePwdId = session.getAttribute("changePwdId").toString();
         String newPassword = newPasswordMap.get("password");
         MemberVO m = new MemberVO();
-        m.setId(id);
+        m.setId(changePwdId);
         m.setPassword(newPassword);
+        session.removeAttribute("changePwdId");
         try{
             memberService.modifyPassword(m);
             return ResponseEntity.ok().build();
@@ -185,5 +156,7 @@ public class MemberController {
         }
         return ResponseEntity.badRequest().build();
     }
+
+
 
 }

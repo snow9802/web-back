@@ -51,7 +51,11 @@ public class MemberService implements MemberServiceInterface{
 
     @Override
     public String getIdByNameEmail(MemberVO member) throws FindException {
-        return memberMapper.getIdByNameEmail(member);
+        String foundId = memberMapper.getIdByNameEmail(member);
+        if (foundId == null) {
+            throw new FindException("Member not found");
+        }
+        return foundId;
     }
 
     @Override
