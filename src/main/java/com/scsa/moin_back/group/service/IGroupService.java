@@ -22,7 +22,7 @@ public interface IGroupService {
 
     ResponseEntity<Object> modifyGroup(GroupVO groupVO, MultipartFile fileImg);
 
-    ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap);
+    ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap) throws Exception;
 
     ResponseEntity<Object> removeParticipation(HashMap<String, Object> paramMap) throws Exception;
 

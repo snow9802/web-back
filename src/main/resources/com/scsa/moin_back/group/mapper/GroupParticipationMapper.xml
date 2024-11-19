@@ -11,6 +11,20 @@
         VALUES (SEQ_PARTICIPATION.NEXTVAL, #{groupId}, #{id})
     </insert>
 
+    <!-- 모임 참여 수 + 1 -->
+    <update id="updateGroupParticipationPlus" parameterType="map">
+        UPDATE GROUPS
+        SET PARTICIPATION_COUNT = PARTICIPATION_COUNT + 1
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 모임 참여 수 + 1 -->
+    <update id="updateGroupParticipationMinus" parameterType="map">
+        UPDATE GROUPS
+        SET PARTICIPATION_COUNT = PARTICIPATION_COUNT - 1
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
     <!-- groupId, id와 모두 동일한 행 조회 -->
     <select id="searchParticipationCount" resultType="int">
         SELECT COUNT(*)
