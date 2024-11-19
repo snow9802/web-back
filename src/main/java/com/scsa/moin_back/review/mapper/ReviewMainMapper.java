@@ -20,7 +20,7 @@ public interface ReviewMainMapper {
 
     void insertReview(ReviewDTO reviewDTO);
 
-    void insertReviewImgs(List<ReviewImgVO> reviewImgList);
+    void insertReviewImgs(ReviewImgVO reviewImg);
 
     void updateReview(ReviewDTO reviewDTO);
 

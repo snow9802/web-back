@@ -112,8 +112,9 @@ public class ReviewMainController {
      * @param reviewDTO
      * @return
      */
-    @PostMapping(value = {"/regist/{grouopId}"})
-    public ResponseEntity registReview(ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
+    @PostMapping(value = {"/regist"})
+    public ResponseEntity registReview(
+            @RequestBody ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = (String)httpSession.getAttribute("id");
         id="user10";
@@ -157,7 +158,7 @@ public class ReviewMainController {
     @PutMapping(value = {"/modify/{reviewId}"})
     public ResponseEntity modifyReview(
             @PathVariable int reviewId,
-            ReviewDTO reviewDTO
+            @RequestBody ReviewDTO reviewDTO
             , HttpSession httpSession) throws ModifyReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = (String)httpSession.getAttribute("id");

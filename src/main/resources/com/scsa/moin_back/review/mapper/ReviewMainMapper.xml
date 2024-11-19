@@ -206,21 +206,18 @@
              )
     </insert>
 
-    <insert id="insertReviewImgs" parameterType="java.util.List">
-        <selectKey keyProperty="reviewImgId" resultType="int" order="BEFORE">
-            SELECT NVL(MAX(REVIEW_IMG_ID), 0) + 1 FROM REVIEW_IMGS
-        </selectKey>
+    <insert id="insertReviewImgs" parameterType="com.scsa.moin_back.review.vo.ReviewImgVO">
             INSERT /* 리뷰 후기 사진 등록 */
-              INTO REIVIEW_IMGS
+              INTO REVIEW_IMGS
                  ( REVIEW_IMG_ID
                  , REVIEW_ID
                  , REVIEW_IMG_URL
+                )
             VALUES
-        <foreach collection="list" item="reviewImg" separator=",">
-                ( #{reviewImgId}
+                ( (SELECT NVL(MAX(REVIEW_IMG_ID), 0) + 1 FROM REVIEW_IMGS)
                  , #{reviewId}
                  , #{reviewImgUrl}
-        </foreach>
+                )
     </insert>
 
     <update id="updateReview" parameterType="com.scsa.moin_back.review.dto.ReviewDTO">
