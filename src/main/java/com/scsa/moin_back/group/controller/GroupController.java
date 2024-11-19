@@ -10,6 +10,7 @@ import com.scsa.moin_back.group.vo.GroupVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -179,13 +180,14 @@ public class GroupController {
      * @return
      */
     @PostMapping("/regist")
-    public ResponseEntity<Object> registGroup(@RequestBody GroupVO group) {
+    public ResponseEntity<Object> registGroup(@RequestPart GroupVO group,
+                                              @RequestPart MultipartFile fileImg) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = "user01";
         group.setGroupLeaderId(id);
 
-        return groupService.registGroup(group);
+        return groupService.registGroup(group, fileImg);
     }
 
     /**
@@ -199,13 +201,15 @@ public class GroupController {
     }
 
     /**
-     * 모임 수정 - 수정
-     * @param groupVO
+     * 모임 수정 - 수정하기
+     * @param group
+     * @param fileImg
      * @return
      */
     @PutMapping("/update")
-    public ResponseEntity<Object> updateGroup(@RequestBody GroupVO groupVO) {
-        return groupService.modifyGroup(groupVO);
+    public ResponseEntity<Object> updateGroup(@RequestPart GroupVO group,
+                                              @RequestPart MultipartFile fileImg) {
+        return groupService.modifyGroup(group, fileImg);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.scsa.moin_back.group.service;
 import com.scsa.moin_back.category.mapper.CategoryMapper;
 import com.scsa.moin_back.category.vo.CategoryVO;
 import com.scsa.moin_back.common.dto.PageDTO;
+import com.scsa.moin_back.common.service.FileUploader;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.mapper.GroupMainMapper;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -25,6 +27,7 @@ public class GroupServiceImpl implements IGroupService {
     private final GroupMainMapper groupMainMapper;
     private final CategoryMapper categoryMapper;
     private final GroupParticipationMapper groupParticipationMapper;
+    private final FileUploader fileUploader;
     
     @Override
     public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive) {
@@ -87,13 +90,20 @@ public class GroupServiceImpl implements IGroupService {
 
     @Override
     @Transactional
-    public ResponseEntity<Object> registGroup(GroupVO group) {
+    public ResponseEntity<Object> registGroup(GroupVO group, MultipartFile fileImg) {
+        String fileUrl = "default url";
 
-        /* img 파일 처리 필요 */
-        if (group.getGroupImg() == null){
-            group.setGroupImg("default");
+        /* img 파일 업로드 */
+        if (fileImg != null){
+            try{
+                fileUrl = fileUploader.uploadFile(fileImg);
+            } catch (Exception e){
+                return ResponseEntity.status(400).build(); // 파일 업로드 실패
+            }
         }
-        group.setParticipationCount(1); // 방장 기본 수행
+
+        group.setGroupImg(fileUrl);
+        group.setParticipationCount(1); // 방장 기본 참여
 
         try {
             /* 모임 테이블 insert */
@@ -131,9 +141,18 @@ public class GroupServiceImpl implements IGroupService {
     }
 
     @Override
-    public ResponseEntity<Object> modifyGroup(GroupVO group) {
-        /* img 처리 필요 */
-        // image는 null이 아닐 경우만 set, 다른 것들은 그대로 set
+    public ResponseEntity<Object> modifyGroup(GroupVO group, MultipartFile fileImg) {
+        String fileUrl;
+
+        /* 수정할 이미지가 있는 경우 이미지 업로드 */
+        if (fileImg != null){
+            try {
+                fileUrl = fileUploader.uploadFile(fileImg);
+                group.setGroupImg(fileUrl);
+            } catch (Exception e){
+                return ResponseEntity.status(409).build();
+            }
+        }
 
         /* 모임명과 카테고리가 null인 경우 에러 코드 응답 */
         if (group.getGroupName() == null || group.getCategoryId() == 0){
@@ -337,12 +356,6 @@ public class GroupServiceImpl implements IGroupService {
      */
     private void checkFavDate(List<GroupDTO> groupDTOList) {
         for (GroupDTO groupDTO : groupDTOList) {
-//            if (groupDTO.getIsCurUserFavorite() != null && groupDTO.getIsCurUserFavorite() == userId){
-//                groupDTO.setIsCurUserFavorite("Y");
-//            } else {
-//                groupDTO.setIsCurUserFavorite("N");
-//            }
-
             if (groupDTO.getGroup().getGroupDate() == null){
                 groupDTO.setDDay(-999); // 미정인 경우
                 continue;

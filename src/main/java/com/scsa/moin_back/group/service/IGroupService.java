@@ -5,6 +5,7 @@ import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupModifyDTO;
 import com.scsa.moin_back.group.vo.GroupVO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -15,11 +16,11 @@ public interface IGroupService {
 
     ResponseEntity<Object> removeGroup(HashMap<String, Object> paramMap);
 
-    ResponseEntity<Object> registGroup(GroupVO group);
+    ResponseEntity<Object> registGroup(GroupVO group, MultipartFile fileImg);
 
     ResponseEntity<GroupModifyDTO> getGroupModifyDTO(Optional<Integer> groupId);
 
-    ResponseEntity<Object> modifyGroup(GroupVO groupVO);
+    ResponseEntity<Object> modifyGroup(GroupVO groupVO, MultipartFile fileImg);
 
     ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap);
 
