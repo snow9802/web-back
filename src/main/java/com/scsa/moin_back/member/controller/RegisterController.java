@@ -76,6 +76,7 @@ public class RegisterController {
             session.setAttribute("confirmedEmail", confirmedEmail);
             System.out.println(session.getAttribute("confirmedEmail"));
             session.removeAttribute("code");
+            System.out.println("인증이 완료되었습니다.");
             return ResponseEntity.ok().build();
         } catch (FindException e) {
             e.printStackTrace();
