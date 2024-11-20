@@ -6,8 +6,20 @@
 
     <resultMap id="reviewGroupResultMap" type="com.scsa.moin_back.review.dto.ReviewGroupDTO">
         <result property="categoryName" column="CATEGORY_NAME"/>
-        <collection property="groupVoList" javaType="java.util.List" ofType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
+        <result property="groupId" column="GROUP_ID"/>
+        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true">
+            <result property="groupImg" column="GROUP_IMG"/>
+            <result property="categoryId" column="CATEGORY_ID"/>
+            <result property="groupName" column="GROUP_NAME"/>
+            <result property="introText" column="INTRO_TEST"/>
+            <result property="groupLimit" column="GROUP_LIMIT"/>
+            <result property="commentCount" column="COMMENT_COUNT"/>
+            <result property="participationCount" column="PARTICIPATION_COUNT"/>
+        </association>
+
     </resultMap>
+
+
 
     <select id="getReviewList" parameterType="map"  resultType="com.scsa.moin_back.review.dto.ReviewDTO">
     WITH GROUP_DATA AS( /*모임 지역정보*/
