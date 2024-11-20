@@ -78,9 +78,9 @@
                         FROM REVIEW_DATA R
                            , GROUP_DATA GD
                        WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
-                        <if test="searchContent != null">
-                            AND ( R.REVIEW_CONTENT LIKE '%'||#{searchContent}||'%')
-                                  OR R.REVIEW_TITLE LIKE '%'||#{searchContent}||'%')
+                        <if test="searchParam != ''">
+                            AND ( R.REVIEW_CONTENT LIKE '%'||#{searchParam}||'%'
+                                  OR R.REVIEW_TITLE LIKE '%'||#{searchParam}||'%' )
                         </if>
                         <if test="city != 'all'">
                             AND GD.CITY = #{city}
@@ -118,9 +118,9 @@
               FROM REVIEW R
                  , GROUP_DATA GD
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
-            <if test="searchContent != null">
-                AND ( R.REVIEW_CONTENT LIKE CONCAT('%', #{searchContent}, '%')
-                      OR R.REVIEW_TITLE LIKE CONCAT('%', #{searchContent}, '%'))
+            <if test="searchParam != ''">
+                AND ( R.REVIEW_CONTENT LIKE '%'||#{searchParam}||'%'
+                      OR R.REVIEW_TITLE LIKE '%'||#{searchParam}||'%' )
             </if>
             <if test="city != 'all'">
                 AND GD.CITY = #{city}
