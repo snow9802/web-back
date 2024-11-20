@@ -109,9 +109,11 @@ public class ReviewMainController {
         if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
-        reviewService.chkValidGroup(id, groupId);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        String reviewGroupName = reviewService.chkValidGroup(id, groupId);
+        if (reviewGroupName == null || reviewGroupName.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(reviewGroupName);
     }
 
     /**

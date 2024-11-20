@@ -317,6 +317,7 @@
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
                AND R.ID = #{id}
     </select>
+
     <select id="chkDupReview" parameterType="map" resultType="int">
           SELECT COUNT(1)
             FROM REVIEW
@@ -324,5 +325,10 @@
              AND REVIEW_GROUP_ID = #{reviewGroupId}
     </select>
 
+    <select id="getReviewGroupName" parameterType="int" resultType="String">
+          SELECT GROUP_NAME
+            FROM GROUPS
+           WHERE GROUP_ID = #{groupId}
+    </select>
 
 </mapper>
