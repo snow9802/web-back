@@ -38,10 +38,12 @@ public interface ReviewService {
 
     /**
      * 유효한 그룹 여부 확인
+     *
      * @param id
      * @param groupId
+     * @return
      */
-    void chkValidGroup(String id, int groupId);
+    String chkValidGroup(String id, int groupId);
 
     /**
      * 리뷰 추가
