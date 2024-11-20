@@ -30,7 +30,10 @@
             ON C.CATEGORY_ID = G.CATEGORY_ID
             WHERE G.DEL_YN = 'N'
             AND G.MANUAL_CLOSE_YN = 'N'
-            AND G.CLOSE_DATE >= SYSDATE
+            AND (
+                (G.CLOSE_DATE IS NULL AND G.GROUP_DATE >= SYSDATE) OR
+                (G.CLOSE_DATE IS NOT NULL AND G.CLOSE_DATE >= SYSDATE)
+                )
             AND G.PARTICIPATION_COUNT <![CDATA[<]]> G.GROUP_LIMIT
             <if test="category != 'all'">
                 AND G.CATEGORY_ID =
@@ -72,7 +75,10 @@
         FROM GROUPS G
         WHERE G.DEL_YN = 'N'
         AND G.MANUAL_CLOSE_YN = 'N'
-        AND G.CLOSE_DATE >= SYSDATE
+        AND (
+        (G.CLOSE_DATE IS NULL AND G.GROUP_DATE >= SYSDATE) OR
+        (G.CLOSE_DATE IS NOT NULL AND G.CLOSE_DATE >= SYSDATE)
+        )
         AND G.PARTICIPATION_COUNT <![CDATA[<]]> G.GROUP_LIMIT
         <if test="category != 'all'">
             AND G.CATEGORY_ID =
@@ -125,7 +131,8 @@
             AND
             (
             G.MANUAL_CLOSE_YN = 'Y' OR
-            G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
+            (G.CLOSE_DATE IS NULL AND SYSDATE >= G.GROUP_DATE) OR
+            (G.CLOSE_DATE IS NOT NULL AND G.CLOSE_DATE <![CDATA[<]]> SYSDATE) OR
             G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
             )
             <if test="category != 'all'">
@@ -170,7 +177,8 @@
         AND
         (
         G.MANUAL_CLOSE_YN = 'Y' OR
-        G.CLOSE_DATE <![CDATA[<]]> SYSDATE OR
+        (G.CLOSE_DATE IS NULL AND SYSDATE >= G.GROUP_DATE) OR
+        (G.CLOSE_DATE IS NOT NULL AND G.CLOSE_DATE <![CDATA[<]]> SYSDATE) OR
         G.PARTICIPATION_COUNT >= G.GROUP_LIMIT
         )
         <if test="category != 'all'">
@@ -204,10 +212,10 @@
     </select>
 
     <!-- 모임 단일 조회 -->
-    <select id="searchGroupById" parameterType="int" resultType="com.scsa.moin_back.group.vo.GroupVO">
+    <select id="searchGroupById" resultType="com.scsa.moin_back.group.vo.GroupVO">
         SELECT *
         FROM GROUPS
-        WHERE GROUP_ID = #{groupId}
+        WHERE GROUP_LEADER_ID = #{userId} AND GROUP_ID = #{groupId}
     </select>
 
     <!-- 모임 삭제 여부 업데이트 -->
@@ -416,4 +424,5 @@
         WHERE G.DEL_YN = 'N'
         AND L.ID = #{id}
     </select>
+
 </mapper>

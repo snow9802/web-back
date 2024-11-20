@@ -3,6 +3,7 @@ package com.scsa.moin_back.member.controller;
 import com.scsa.moin_back.member.config.SecurityUtil;
 import com.scsa.moin_back.member.service.MypageMemberService;
 import com.scsa.moin_back.member.vo.MemberVO;
+import com.scsa.moin_back.member.vo.ModifiedMemberVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,18 @@ public class MypageMemberController {
             // 비밀번호 일치 여부 확인
             mypageMemberService.checkPassword(loginId, passwordMap.get("password"));
             return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/get-member-info")
+    public ResponseEntity<ModifiedMemberVO> getMemberInfo() {
+        String loginId = securityUtil.getCurrentMemberId();
+        try {
+            ModifiedMemberVO modifiedMemberVO = mypageMemberService.getMemberInfoById(loginId);
+            return ResponseEntity.ok(modifiedMemberVO);
         } catch (Exception e) {
             e.printStackTrace();
         }
