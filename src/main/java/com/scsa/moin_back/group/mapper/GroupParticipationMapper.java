@@ -12,4 +12,8 @@ public interface GroupParticipationMapper {
     int searchParticipationCount(HashMap<String, Object> paramMap);
 
     int deleteParticipation(HashMap<String, Object> paramMap);
+
+    int updateGroupParticipationPlus(HashMap<String, Object> paramMap);
+
+    int updateGroupParticipationMinus(HashMap<String, Object> paramMap);
 }

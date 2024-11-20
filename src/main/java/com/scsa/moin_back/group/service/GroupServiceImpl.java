@@ -6,6 +6,7 @@ import com.scsa.moin_back.common.dto.PageDTO;
 import com.scsa.moin_back.common.service.FileUploader;
 import com.scsa.moin_back.group.dto.GroupDTO;
 import com.scsa.moin_back.group.dto.GroupModifyDTO;
+import com.scsa.moin_back.group.mapper.GroupDetailMapper;
 import com.scsa.moin_back.group.mapper.GroupMainMapper;
 import com.scsa.moin_back.group.mapper.GroupParticipationMapper;
 import com.scsa.moin_back.group.vo.GroupVO;
@@ -28,7 +29,8 @@ public class GroupServiceImpl implements IGroupService {
     private final CategoryMapper categoryMapper;
     private final GroupParticipationMapper groupParticipationMapper;
     private final FileUploader fileUploader;
-    
+    private final GroupDetailMapper groupDetailMapper;
+
     @Override
     public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive) {
 
@@ -171,27 +173,33 @@ public class GroupServiceImpl implements IGroupService {
     }
 
     @Override
-    public ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap) {
+    @Transactional
+    public ResponseEntity<Object> registParticipation(HashMap<String, Object> paramMap) throws Exception {
         /* 파라미터 유효성 체크 */
         if (paramMap.get("groupId") == null || paramMap.get("id") == null){
-            return ResponseEntity.status(409).build();
+            return ResponseEntity.status(405).build();
         }
 
         /* 이미 참여 중이라면 추가로 넣으면 안됨 */
         int count = groupParticipationMapper.searchParticipationCount(paramMap);
         if (count > 0){
-            return ResponseEntity.status(400).build(); // 이미 참여 중인 경우
+            return ResponseEntity.status(208).build(); // 이미 참여 중인 경우
         }
 
-        try{
-            int result = groupParticipationMapper.registParticipation(paramMap);
-            if (result == 0){
-                return ResponseEntity.status(400).build(); // 참가 실패
-            }
-            return ResponseEntity.ok().build();
-        } catch (Exception e){
-            return ResponseEntity.status(400).build();
+        int result = groupParticipationMapper.registParticipation(paramMap);
+        if (result == 0){
+//            return ResponseEntity.status(400).build(); // 참가 실패
+            throw new Exception();
         }
+
+        int updateResult = groupParticipationMapper.updateGroupParticipationPlus(paramMap);
+        if (updateResult == 0){
+//            return ResponseEntity.status(400).build();
+            throw new Exception();
+        }
+
+        return ResponseEntity.ok().build();
+
     }
 
     @Override
@@ -212,6 +220,12 @@ public class GroupServiceImpl implements IGroupService {
         if (result == 0){
             throw new Exception();
         }
+
+        int updateResult = groupParticipationMapper.updateGroupParticipationMinus(paramMap);
+        if (updateResult == 0){
+            throw new Exception();
+        }
+
         return ResponseEntity.ok().build();
     }
 

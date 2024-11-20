@@ -68,6 +68,7 @@ public class GroupDetailServiceImpl implements IGroupDetailService{
         groupDetailDTO.setIsParticipation(isParticipation);
         // 카테고리 num 추가
         groupDetailDTO.setCategoryName(groupDetailMapper.getCategoryNameById(group.getCategoryId()));
+        groupDetailDTO.setGroupLeaderName(groupDetailMapper.getGroupLeaderName(group.getGroupLeaderId()));
 
         System.out.println(groupDetailDTO);
         return groupDetailDTO;

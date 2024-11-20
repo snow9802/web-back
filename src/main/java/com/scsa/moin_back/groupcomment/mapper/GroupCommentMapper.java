@@ -6,9 +6,13 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface GroupCommentMapper {
 
-    void insertGroupComment(GroupCommentVO groupCommentVO);
+    int insertGroupComment(GroupCommentVO groupCommentVO);
 
     int updateGroupComment(GroupCommentVO groupComment);
 
     int deleteGroupComment(GroupCommentVO groupComment);
+
+    int updateGroupCommentCntPlus(GroupCommentVO groupComment);
+
+    int updateGroupCommentCntMinus(GroupCommentVO groupComment);
 }

@@ -225,7 +225,12 @@ public class GroupController {
      */
     @PostMapping("/join")
     public ResponseEntity<Object> joinGroup(@RequestBody HashMap<String, Object> paramMap) {
-        return groupService.registParticipation(paramMap);
+        paramMap.put("id", securityUtil.getCurrentMemberId());
+        try{
+            return groupService.registParticipation(paramMap);
+        } catch (Exception e){
+            return ResponseEntity.status(400).build();
+        }
     }
 
     /**
@@ -235,6 +240,7 @@ public class GroupController {
      */
     @DeleteMapping("/join")
     public ResponseEntity<Object> resignParticipant(@RequestBody HashMap<String, Object> paramMap) {
+        paramMap.put("id", securityUtil.getCurrentMemberId());
         try{
             return groupService.removeParticipation(paramMap);
         } catch (Exception e){
