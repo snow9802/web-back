@@ -122,7 +122,7 @@ public class ReviewMainController {
      * @param reviewDTO
      * @return
      */
-    @PostMapping(value = {"/regist"})
+    @PostMapping(value = {"/regist/{groupId}"})
     public ResponseEntity registReview(
             @RequestBody ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/

@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor @AllArgsConstructor
 @ToString
 public class ReviewGroupDTO {
-    private List<GroupVO> groupVoList;
     private GroupVO groupVo;
     private int groupId;
     private String categoryName;
