@@ -69,7 +69,7 @@
     </resultMap>
 
     <select id="getReviewDetail" parameterType="int"  resultType="com.scsa.moin_back.review.dto.ReviewDetailDTO">
-        SELECT /* 리뷰 상세 내용 */
+              SELECT /* 리뷰 상세 내용 */
                REVIEW_ID
              , REVIEW_GROUP_ID
              , REVIEW_TITLE
@@ -84,6 +84,8 @@
                 ) AS REVIEW_WRITER
              , CREATED_AT
              , REVIEW_CONTENT
+             , ID AS REVIEW_WRITER_ID
+             , (SELECT PROFILE_URL FROM MEMBERS M WHERE M.ID=R.ID) AS PROFILE_URL
           FROM REVIEW R
          WHERE REVIEW_ID = #{reviewId}
     </select>
