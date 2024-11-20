@@ -20,16 +20,30 @@ public class GroupCommentController {
     public ResponseEntity<Object> registGroupComment(@RequestBody GroupCommentVO groupCommentVO){
         groupCommentVO.setId(securityUtil.getCurrentMemberId());
         System.out.println(groupCommentVO);
-        return groupCommentService.registGroupComment(groupCommentVO);
+        try {
+            return groupCommentService.registGroupComment(groupCommentVO);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).build();
+        }
     }
 
     @PutMapping
     public ResponseEntity<Object> modifyGroupComment(@RequestBody GroupCommentVO groupCommentVO){
-        return groupCommentService.modifyGroupComment(groupCommentVO);
+        groupCommentVO.setId(securityUtil.getCurrentMemberId());
+        try {
+            return groupCommentService.modifyGroupComment(groupCommentVO);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).build();
+        }
     }
 
     @DeleteMapping
     public ResponseEntity<Object> deleteGroupComment(@RequestBody GroupCommentVO groupCommentVO){
-        return groupCommentService.removeGroupComment(groupCommentVO);
+        groupCommentVO.setId(securityUtil.getCurrentMemberId());
+        try {
+            return groupCommentService.removeGroupComment(groupCommentVO);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).build();
+        }
     }
 }

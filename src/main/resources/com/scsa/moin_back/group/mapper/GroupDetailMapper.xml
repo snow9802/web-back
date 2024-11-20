@@ -64,6 +64,7 @@
         LEFT OUTER JOIN MEMBERS RECOMMENT_MEMBER
         ON RECOMMENT_MEMBER.ID = GRC.ID
         WHERE GC.GROUP_ID = #{groupId}
+        ORDER BY GC.CREATED_AT
     </select>
 
     <!-- 모임 상세 정보 조회 -->
@@ -76,10 +77,18 @@
         AND L.ID = #{id}
     </select>
 
+    <!-- 카테고리 이름 찾기 -->
     <select id="getCategoryNameById" resultType="java.lang.String">
         SELECT category_name
         FROM categories
         WHERE category_id = #{categoryId}
+    </select>
+
+    <!-- 리더 닉네임 찾기 -->
+    <select id="getGroupLeaderName" resultType="java.lang.String">
+        SELECT NICKNAME
+        FROM MEMBERS
+        WHERE ID = #{groupLeaderId}
     </select>
 
 </mapper>

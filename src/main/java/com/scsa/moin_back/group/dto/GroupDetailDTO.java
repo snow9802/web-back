@@ -12,4 +12,5 @@ public class GroupDetailDTO {
     private String isLike; // 현재 유저가 해당 모임을 좋아하는지 여부
     private String isParticipation; // 해당 유저가 참여중인지 체크
     private String categoryName; // 해당하는 카테코리 이름
+    private String groupLeaderName;
 }

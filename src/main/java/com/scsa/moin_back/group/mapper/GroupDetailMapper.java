@@ -39,5 +39,17 @@ public interface GroupDetailMapper {
      */
     MemberVO checkMemberLike(@Param("groupId") int groupId, @Param("id") String id);
 
+    /**
+     * 현재 카테고리 ID에 해당하는 카테고리 이름 찾기
+     * @param categoryId
+     * @return
+     */
     String getCategoryNameById(@Param("categoryId") int categoryId);
+
+    /**
+     * 현재 userId에 해당하는 nickname 찾기
+     * @param groupLeaderId
+     * @return
+     */
+    String getGroupLeaderName(String groupLeaderId);
 }
