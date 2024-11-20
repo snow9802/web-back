@@ -6,7 +6,7 @@
 
     <resultMap id="reviewGroupResultMap" type="com.scsa.moin_back.review.dto.ReviewGroupDTO">
         <result property="categoryName" column="CATEGORY_NAME"/>
-        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
+        <collection property="groupVoList" javaType="java.util.List" ofType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
     </resultMap>
 
     <select id="getReviewList" parameterType="map"  resultType="com.scsa.moin_back.review.dto.ReviewDTO">
@@ -156,7 +156,7 @@
                          WHERE P.GROUP_ID = G.GROUP_ID
                            AND P.ID = #{id}
                            AND G.DEL_YN = 'N'
-                           AND GROUP_DATE <![CDATA[ < ]]> SYSDATE
+--                           AND GROUP_DATE <![CDATA[ < ]]> SYSDATE
                            AND G.GROUP_ID NOT IN (
                                                  SELECT REVIEW_GROUP_ID
                                                    FROM REVIEW

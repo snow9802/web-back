@@ -1,15 +1,13 @@
 package com.scsa.moin_back.common.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @NoArgsConstructor  @AllArgsConstructor
 @Setter
 @Getter
+@ToString
 public class PageDTO<T> {
     private List<T> list;
     private int currentPage; //현재페이지
