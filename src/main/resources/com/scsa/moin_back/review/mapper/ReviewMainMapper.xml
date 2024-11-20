@@ -6,8 +6,20 @@
 
     <resultMap id="reviewGroupResultMap" type="com.scsa.moin_back.review.dto.ReviewGroupDTO">
         <result property="categoryName" column="CATEGORY_NAME"/>
-        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true"/>
+        <result property="groupId" column="GROUP_ID"/>
+        <association property="groupVo" javaType="com.scsa.moin_back.group.vo.GroupVO" autoMapping="true">
+            <result property="groupImg" column="GROUP_IMG"/>
+            <result property="categoryId" column="CATEGORY_ID"/>
+            <result property="groupName" column="GROUP_NAME"/>
+            <result property="introText" column="INTRO_TEST"/>
+            <result property="groupLimit" column="GROUP_LIMIT"/>
+            <result property="commentCount" column="COMMENT_COUNT"/>
+            <result property="participationCount" column="PARTICIPATION_COUNT"/>
+        </association>
+
     </resultMap>
+
+
 
     <select id="getReviewList" parameterType="map"  resultType="com.scsa.moin_back.review.dto.ReviewDTO">
     WITH GROUP_DATA AS( /*모임 지역정보*/
@@ -78,9 +90,9 @@
                         FROM REVIEW_DATA R
                            , GROUP_DATA GD
                        WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
-                        <if test="searchContent != null">
-                            AND ( R.REVIEW_CONTENT LIKE '%'||#{searchContent}||'%')
-                                  OR R.REVIEW_TITLE LIKE '%'||#{searchContent}||'%')
+                        <if test="searchParam != ''">
+                            AND ( R.REVIEW_CONTENT LIKE '%'||#{searchParam}||'%'
+                                  OR R.REVIEW_TITLE LIKE '%'||#{searchParam}||'%' )
                         </if>
                         <if test="city != 'all'">
                             AND GD.CITY = #{city}
@@ -118,9 +130,9 @@
               FROM REVIEW R
                  , GROUP_DATA GD
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
-            <if test="searchContent != null">
-                AND ( R.REVIEW_CONTENT LIKE CONCAT('%', #{searchContent}, '%')
-                      OR R.REVIEW_TITLE LIKE CONCAT('%', #{searchContent}, '%'))
+            <if test="searchParam != ''">
+                AND ( R.REVIEW_CONTENT LIKE '%'||#{searchParam}||'%'
+                      OR R.REVIEW_TITLE LIKE '%'||#{searchParam}||'%' )
             </if>
             <if test="city != 'all'">
                 AND GD.CITY = #{city}
@@ -156,7 +168,7 @@
                          WHERE P.GROUP_ID = G.GROUP_ID
                            AND P.ID = #{id}
                            AND G.DEL_YN = 'N'
-                           AND GROUP_DATE <![CDATA[ < ]]> SYSDATE
+--                           AND GROUP_DATE <![CDATA[ < ]]> SYSDATE
                            AND G.GROUP_ID NOT IN (
                                                  SELECT REVIEW_GROUP_ID
                                                    FROM REVIEW
@@ -317,6 +329,7 @@
              WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
                AND R.ID = #{id}
     </select>
+
     <select id="chkDupReview" parameterType="map" resultType="int">
           SELECT COUNT(1)
             FROM REVIEW
@@ -324,5 +337,10 @@
              AND REVIEW_GROUP_ID = #{reviewGroupId}
     </select>
 
+    <select id="getReviewGroupName" parameterType="int" resultType="String">
+          SELECT GROUP_NAME
+            FROM GROUPS
+           WHERE GROUP_ID = #{groupId}
+    </select>
 
 </mapper>

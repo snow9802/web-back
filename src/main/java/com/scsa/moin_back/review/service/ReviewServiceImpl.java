@@ -62,8 +62,8 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void chkValidGroup(String id, int groupId) {
-
+    public String chkValidGroup(String id, int groupId) {
+        return reviewMainMapper.getReviewGroupName(groupId);
     }
 
     @Override

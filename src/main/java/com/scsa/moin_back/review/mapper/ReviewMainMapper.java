@@ -29,4 +29,6 @@ public interface ReviewMainMapper {
     int getMyReviewListCnt(HashMap<String, Object> map);
 
     int chkDupReview(ReviewDTO reviewDTO);
+
+    String getReviewGroupName(int groupId);
 }
