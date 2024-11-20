@@ -46,7 +46,7 @@ public interface GroupMainMapper {
      * @param groupId
      * @return
      */
-    GroupVO searchGroupById(int groupId);
+    GroupVO searchGroupById(String userId, int groupId);
 
     /**
      * 모임 삭제 (SOFT 업데이트)

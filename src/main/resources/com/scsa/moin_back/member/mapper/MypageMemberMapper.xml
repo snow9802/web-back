@@ -18,4 +18,10 @@
         WHERE id = #{id}
     </update>
 
+    <select id="getMemberInfo" resultType="com.scsa.moin_back.member.vo.MemberVO">
+        SELECT *
+        FROM members
+        WHERE id=#{id}
+    </select>
+
 </mapper>

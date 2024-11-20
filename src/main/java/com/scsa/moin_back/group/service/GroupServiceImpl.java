@@ -10,7 +10,10 @@ import com.scsa.moin_back.group.mapper.GroupDetailMapper;
 import com.scsa.moin_back.group.mapper.GroupMainMapper;
 import com.scsa.moin_back.group.mapper.GroupParticipationMapper;
 import com.scsa.moin_back.group.vo.GroupVO;
+import com.scsa.moin_back.member.config.SecurityConfig;
+import com.scsa.moin_back.member.config.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ public class GroupServiceImpl implements IGroupService {
     private final GroupParticipationMapper groupParticipationMapper;
     private final FileUploader fileUploader;
     private final GroupDetailMapper groupDetailMapper;
+    private final SecurityUtil securityUtil;
 
     @Override
     public PageDTO<GroupDTO> getGroups(String userId, Optional<Integer> currentPage, Optional<Integer> pageSize, Optional<String> category, String searchParam, String city, String district, String isActive) {
@@ -76,13 +80,15 @@ public class GroupServiceImpl implements IGroupService {
     @Override
     public ResponseEntity<Object> removeGroup(HashMap<String, Object> paramMap) {
         int groupId = Integer.parseInt(paramMap.get("groupId").toString());
+        String userId = securityUtil.getCurrentMemberId();
 
         try{
-            if (groupMainMapper.searchGroupById(groupId) != null){
+            if (groupMainMapper.searchGroupById(userId, groupId) != null){
                 groupMainMapper.modifyGroupRemove(groupId);
                 return ResponseEntity.ok().build();
             } else {
-                return ResponseEntity.status(400).build();
+                System.out.println("그룹에 대한 권한이 없습니다.");
+                return ResponseEntity.status(405).build();
             }
         } catch (Exception e){
             return ResponseEntity.status(400).build();
@@ -131,9 +137,15 @@ public class GroupServiceImpl implements IGroupService {
         if (groupId.isEmpty()){
             return ResponseEntity.status(400).build();
         }
+        String userId = securityUtil.getCurrentMemberId();
+        System.out.println("ID : " + userId);
 
         try {
-            GroupVO group = groupMainMapper.searchGroupById(groupId.get());
+            GroupVO group = groupMainMapper.searchGroupById(userId, groupId.get());
+            if (group == null){
+                System.out.println("그룹에 대한 권한이 없습니다.");
+                return ResponseEntity.status(405).build();
+            }
             List<CategoryVO> categoryVOList = categoryMapper.getCategories();
             GroupModifyDTO modifyDTO = new GroupModifyDTO(group, categoryVOList);
             return ResponseEntity.ok(modifyDTO);
