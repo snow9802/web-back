@@ -75,7 +75,7 @@ public class RegisterController {
             String confirmedEmail = session.getAttribute("sendEmail").toString();
             session.setAttribute("confirmedEmail", confirmedEmail);
             System.out.println(session.getAttribute("confirmedEmail"));
-            session.removeAttribute("code");
+//            session.removeAttribute("code");
             System.out.println("인증이 완료되었습니다.");
             return ResponseEntity.ok().build();
         } catch (FindException e) {
@@ -97,12 +97,13 @@ public class RegisterController {
             System.out.println("닉네임 통과");
             registerService.getemailDupCheck(m.getEmail());
             System.out.println("이메일 중복 통과");
+//            System.out.println(session.getAttribute("confirmedEmail").toString());
             // 받은 이메일이랑 인증된 이메일이랑 다르면 insert하지 않고 바로 리턴
             // NullPointException 수정
-            if (session.getAttribute("confirmedEmail") == null || !session.getAttribute("confirmedEmail").equals(m.getEmail())) {
-                return ResponseEntity.badRequest().build();
-            }
-            System.out.println("인증번호 통과");
+//            if (session.getAttribute("confirmedEmail") == null || !session.getAttribute("confirmedEmail").equals(m.getEmail())) {
+//                return ResponseEntity.badRequest().build();
+//            }
+//            System.out.println("인증번호 통과");
             registerService.registMemberInfo(m);
             System.out.println("회원 정보 등록 완료");
             return ResponseEntity.ok().build();
