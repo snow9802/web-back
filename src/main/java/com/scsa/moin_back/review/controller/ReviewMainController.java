@@ -6,7 +6,6 @@ import com.scsa.moin_back.review.advice.ReviewExceptionHandler;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewGroupDTO;
-import com.scsa.moin_back.review.dto.ReviewSearchDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
@@ -17,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -51,10 +51,17 @@ public class ReviewMainController {
             @PathVariable Optional<Integer> currentPage,
             @PathVariable Optional<Integer> pageSize,
             @PathVariable Optional<String> categoryName,
-            @ModelAttribute ReviewSearchDTO searchDto
+            @RequestParam(required = false, defaultValue = "") String searchParam,
+            @RequestParam(required = false, defaultValue = "all") String city,
+            @RequestParam(required = false, defaultValue = "all") String district
     ) throws Exception {
-        Map<String, Object> searchParamMap = reviewService.convertToMap(searchDto);
+
+        Map<String, Object> searchParamMap = new HashMap<>();
         searchParamMap.put("categoryName", categoryName.orElse("all"));
+        searchParamMap.put("searchParam", searchParam);
+        searchParamMap.put("city", city);
+        searchParamMap.put("district", district);
+
 
         PageDTO<ReviewDTO> pageDTO = reviewService.getReviewList(searchParamMap, currentPage.orElse(1), pageSize.orElse(5));
         return ResponseEntity.ok(pageDTO);
@@ -78,7 +85,7 @@ public class ReviewMainController {
         int ps = pageSize.orElse(5); //한 화면에 보여줄 페이지수 5
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         PageDTO<ReviewGroupDTO> pageDTO = reviewService.getReviewGroup(id, cp, ps);
@@ -91,6 +98,7 @@ public class ReviewMainController {
      * 그룹에 따른 리뷰 작성페이지 열기
      * 로그인한 사용자만 이용 가능
      * 삭제된 그룹이거나 유효하지 않은 그룹이면 한번 필터링
+     *
      * @param groupId
      * @return
      */
@@ -98,7 +106,7 @@ public class ReviewMainController {
     public ResponseEntity getReviewGroup(@PathVariable int groupId, HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewService.chkValidGroup(id, groupId);
@@ -117,7 +125,7 @@ public class ReviewMainController {
             @RequestBody ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewDTO.setId(id);
@@ -140,7 +148,7 @@ public class ReviewMainController {
             , HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         ReviewDetailDTO reviewDetailDTO = reviewService.getReviewModify(id, reviewId);
@@ -150,6 +158,7 @@ public class ReviewMainController {
 
     /**
      * 리뷰 수정 등록
+     *
      * @param reviewDTO
      * @return
      */
@@ -160,7 +169,7 @@ public class ReviewMainController {
             , HttpSession httpSession) throws ModifyReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewDTO.setId(id);
