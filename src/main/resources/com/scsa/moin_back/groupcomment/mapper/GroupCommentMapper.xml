@@ -12,6 +12,21 @@
         VALUES (SEQ_GROUP_COMMENT.NEXTVAL, #{groupId}, #{id}, SYSDATE, #{commentContent})
     </insert>
 
+    <!-- 댓글 수 + 1 -->
+    <update id="updateGroupCommentCntPlus" parameterType="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
+        UPDATE GROUPS
+        SET COMMENT_COUNT = COMMENT_COUNT + 1
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+    <!-- 댓글 수 - 1 -->
+    <update id="updateGroupCommentCntMinus" parameterType="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
+        UPDATE GROUPS
+        SET COMMENT_COUNT = COMMENT_COUNT - 1
+        WHERE GROUP_ID = #{groupId}
+    </update>
+
+
     <!-- 댓글 수정 -->
     <update id="updateGroupComment" parameterType="com.scsa.moin_back.groupcomment.vo.GroupCommentVO">
         UPDATE GROUP_COMMENTS
