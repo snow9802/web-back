@@ -187,7 +187,7 @@ public class GroupController {
      */
     @PostMapping("/regist")
     public ResponseEntity<Object> registGroup(@RequestPart GroupVO group,
-                                              @RequestPart MultipartFile fileImg) {
+                                              @RequestPart(required = false) MultipartFile fileImg) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = securityUtil.getCurrentMemberId();
@@ -214,7 +214,7 @@ public class GroupController {
      */
     @PutMapping("/update")
     public ResponseEntity<Object> updateGroup(@RequestPart GroupVO group,
-                                              @RequestPart MultipartFile fileImg) {
+                                              @RequestPart(required = false) MultipartFile fileImg) {
         return groupService.modifyGroup(group, fileImg);
     }
 
