@@ -50,6 +50,7 @@ public class MemberController {
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token.getAccessToken());
             memberMyVO = memberService.getMemberMyVO(member.getId());
+            memberMyVO.setId(member.getId()); // 사용자 id 추가
 
             return new ResponseEntity<>(memberMyVO, headers, HttpStatus.OK);
         } catch (Exception e) {
