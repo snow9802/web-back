@@ -5,6 +5,7 @@ import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
 import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.RemoveReviewException;
+import com.scsa.moin_back.review.vo.ReviewCommentVO;
 
 public interface ReviewDetailService {
 
@@ -56,4 +57,9 @@ public interface ReviewDetailService {
      * @param reviewRecommentId
      */
     void removeReviewRecomment(int reviewRecommentId) throws RemoveReviewException;
+
+    /**
+     * 리뷰 댓글 get
+     */
+    ReviewCommentVO getReviewCommentOne(int reviewCommentId) throws FindReviewException;
 }

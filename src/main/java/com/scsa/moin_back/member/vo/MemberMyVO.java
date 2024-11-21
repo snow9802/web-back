@@ -10,6 +10,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString
 public class MemberMyVO {
+    private String id; // 사용자 id 추가
     private String profileUrl;
     private String nickname;
     private String favCategoryName;
