@@ -9,6 +9,7 @@ import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
 import com.scsa.moin_back.review.exception.RemoveReviewException;
 import com.scsa.moin_back.review.mapper.ReviewDetailMapper;
+import com.scsa.moin_back.review.vo.ReviewCommentVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,12 @@ public class ReviewDetailServiceImpl implements ReviewDetailService {
     public void removeReviewRecomment(int reviewRecommentId)
     {
         reviewDetailMapper.deleteReviewRecomment(reviewRecommentId);
+    }
+
+    @Override
+    public ReviewCommentVO getReviewCommentOne(int reviewCommentId) throws FindReviewException {
+        ReviewCommentVO reviewCommentVO = reviewDetailMapper.getReviewCommentOne(reviewCommentId);
+        return reviewCommentVO;
     }
 
 

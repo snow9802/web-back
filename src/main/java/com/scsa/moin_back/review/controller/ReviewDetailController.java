@@ -8,6 +8,7 @@ import com.scsa.moin_back.review.dto.ReviewRecommentDTO;
 import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.RemoveReviewException;
 import com.scsa.moin_back.review.service.ReviewDetailService;
+import com.scsa.moin_back.review.vo.ReviewCommentVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,11 +47,18 @@ public class ReviewDetailController {
     public ResponseEntity removeReview(
             HttpSession httpSession,
             @PathVariable int reviewId
-    ) throws RemoveReviewException {
+    ) throws RemoveReviewException, FindReviewException {
         String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
         }
+        // 접속자 id 권한 확인
+        ReviewDetailDTO reviewDetail = reviewDetailService.getReviewDetail(reviewId);
+        if (!id.equals(reviewDetail.getReviewWriterId())) {
+            System.out.println("작성자가 사용자와 다릅니다.");
+            return ResponseEntity.status(405).build();
+        }
+
         reviewDetailService.removeReview(reviewId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -86,10 +94,21 @@ public class ReviewDetailController {
     public ResponseEntity modifyReviewComment(
             @PathVariable int reviewCommentId,
             @RequestParam("commentContent") String commentContent
-            , HttpSession httpSession    ){
+            , HttpSession httpSession    ) throws FindReviewException {
         String id = securityUtil.getCurrentMemberId();
         if(id == null){
             reviewExceptionHandler.checkLogin(httpSession);
+        }
+
+        // 접속자 id 권한 확인
+        ReviewCommentVO reviewCommentVO = reviewDetailService.getReviewCommentOne(reviewCommentId);
+
+        System.out.println("접속자 id : " + id);
+        System.out.println("작성자 id : " + reviewCommentVO.getId());
+
+        if (!id.equals(reviewCommentVO.getId())) {
+            System.out.println("작성자가 사용자와 다릅니다.");
+            return ResponseEntity.status(405).build();
         }
 
         ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO();
@@ -107,8 +126,25 @@ public class ReviewDetailController {
      */
     @DeleteMapping(value={"/comment/{reviewCommentId}"})
     public ResponseEntity removeReviewComment(
-            @PathVariable int reviewCommentId
-    ) throws RemoveReviewException{
+            @PathVariable int reviewCommentId,
+            HttpSession httpSession
+    ) throws RemoveReviewException, FindReviewException {
+
+        String id = securityUtil.getCurrentMemberId();
+        if(id == null){
+            reviewExceptionHandler.checkLogin(httpSession);
+        }
+
+        // 접속자 id 권한 확인
+        ReviewCommentVO reviewCommentVO = reviewDetailService.getReviewCommentOne(reviewCommentId);
+
+        System.out.println("접속자 id : " + id);
+        System.out.println("작성자 id : " + reviewCommentVO.getId());
+
+        if (!id.equals(reviewCommentVO.getId())) {
+            System.out.println("작성자가 사용자와 다릅니다.");
+            return ResponseEntity.status(405).build();
+        }
 
         reviewDetailService.removeReviewComment(reviewCommentId);
 

@@ -329,6 +329,12 @@
            AND REVIEW_RECOMMENT_ID = #{reviewRecommentId}
     </delete>
 
+    <select id="getReviewCommentOne" resultType="com.scsa.moin_back.review.vo.ReviewCommentVO">
+        SELECT *
+        FROM REVIEW_COMMENTS
+        WHERE REVIEW_COMMENT_ID=#{reviewCommentId}
+    </select>
+
 
 
 </mapper>

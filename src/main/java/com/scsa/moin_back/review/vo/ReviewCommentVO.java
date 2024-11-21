@@ -12,7 +12,7 @@ import java.util.Date;
 public class ReviewCommentVO {
     private int reviewCommentId;
     private int reviewId;
-    private int id;
+    private String id;
     private String commentContent;
     private Date createdAt;
 }
