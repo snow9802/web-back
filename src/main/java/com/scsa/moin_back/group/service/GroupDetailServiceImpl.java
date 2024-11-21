@@ -47,8 +47,7 @@ public class GroupDetailServiceImpl implements IGroupDetailService{
         String isLike = "N";
         String isParticipation = "N";
         if ("Y".equals(curGroup.getManualCloseYn()) ||
-                curGroup.getGroupLimit() <= curGroup.getParticipationCount() ||
-                new Date().compareTo(curGroup.getCloseDate()) > 0){ // 현재 시점이 마감 시점보다 이후
+                curGroup.getGroupLimit() <= curGroup.getParticipationCount() ){
             isRecruit = "N";
         }
 

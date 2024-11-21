@@ -1,6 +1,7 @@
 package com.scsa.moin_back.review.mapper;
 
 import com.scsa.moin_back.review.dto.*;
+import com.scsa.moin_back.review.vo.ReviewCommentVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -25,5 +26,7 @@ public interface ReviewDetailMapper {
         void deleteReviewRecommentBfCmt(int reviewCommentId);
         void deleteReviewComment(int reviewId);
         void deleteReviewRecomment(int recommentId);
+
+        ReviewCommentVO getReviewCommentOne(int reviewCommentId);
 
 }

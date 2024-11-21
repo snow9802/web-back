@@ -9,6 +9,7 @@ import com.scsa.moin_back.review.dto.ReviewGroupDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.FindReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
+import com.scsa.moin_back.review.service.ReviewDetailService;
 import com.scsa.moin_back.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class ReviewMainController {
     private final ReviewService reviewService;
     private final ReviewExceptionHandler reviewExceptionHandler;
     private final SecurityUtil securityUtil;
+    private final ReviewDetailService reviewDetailService;
     /*insert:regist, delete:remove, update:modify, select:search/get*/
     /*
      * POST
@@ -153,6 +155,15 @@ public class ReviewMainController {
         if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
+        // 접속자 id 권한 확인
+        ReviewDetailDTO reviewDetail = reviewDetailService.getReviewDetail(reviewId);
+        if (!id.equals(reviewDetail.getReviewWriterId())) {
+            System.out.println("접속자 id : " + id);
+            System.out.println("작성자 id : " + reviewDetail.getReviewWriterId());
+            System.out.println("작성자가 사용자와 다릅니다.");
+            return ResponseEntity.status(405).build();
+        }
+
         ReviewDetailDTO reviewDetailDTO = reviewService.getReviewModify(id, reviewId);
 
         return ResponseEntity.ok(reviewDetailDTO);
@@ -168,11 +179,19 @@ public class ReviewMainController {
     public ResponseEntity modifyReview(
             @PathVariable int reviewId,
             @RequestBody ReviewDTO reviewDTO
-            , HttpSession httpSession) throws ModifyReviewException {
+            , HttpSession httpSession) throws ModifyReviewException, FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
         if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
+        }
+        // 접속자 id 권한 확인
+        ReviewDetailDTO reviewDetail = reviewDetailService.getReviewDetail(reviewId);
+        if (!id.equals(reviewDetail.getReviewWriterId())) {
+            System.out.println("접속자 id : " + id);
+            System.out.println("작성자 id : " + reviewDetail.getReviewWriterId());
+            System.out.println("작성자가 사용자와 다릅니다.");
+            return ResponseEntity.status(405).build();
         }
         reviewDTO.setId(id);
         reviewDTO.setReviewId(reviewId);
