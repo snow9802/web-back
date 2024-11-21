@@ -19,9 +19,9 @@ public class ReviewDetailDTO {
     private String reviewWriter;
     private String reviewTitle;
     private String reviewContent;
+    private String reviewImgUrl;
     private Date createdAt;
     private ReviewGroupDTO reviewGroup;
     private ReviewGroupDTO reviewRecGroup;
-    private List<ReviewImgDTO> reviewImgList;
     private List<ReviewCommentDTO> reviewCommentList;
 }

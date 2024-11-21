@@ -5,17 +5,14 @@ import com.scsa.moin_back.common.service.FileUploader;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewGroupDTO;
-import com.scsa.moin_back.review.dto.ReviewImgDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
 import com.scsa.moin_back.review.mapper.ReviewDetailMapper;
 import com.scsa.moin_back.review.mapper.ReviewMainMapper;
-import com.scsa.moin_back.review.vo.ReviewImgVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,19 +68,24 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Object> addReview(ReviewDTO reviewDTO, MultipartFile reviewImg) throws AddReviewException {
         /* 리뷰DTO 유효성검사 */
         if (reviewDTO.getReviewContent() == null ||
                 reviewDTO.getReviewTitle() == null ||
                 reviewDTO.getReviewGroupId() == 0 ||
-                reviewDTO.getId() == null ||
-                reviewMainMapper.chkDupReview(reviewDTO) > 0) {
+                reviewDTO.getId() == null ) {
             throw new AddReviewException("유효하지 않은 데이터 혹은 중복된 데이터가 입력되었습니다");
         }
 
+        /* 해당 리뷰를 이미 작성했으면 유효x */
+        if(reviewMainMapper.chkDupReview(reviewDTO) > 0){
+            throw new AddReviewException("해당 모임의 리뷰를 이미 작성했습니다.");
+        }
+
+
+        /* 서버에 img 파일 업로드 -> url 받아와서 저장 */
         String fileUrl = "default url";
-        /* img 파일 업로드 */
         if (reviewImg != null){
             try{
                 fileUrl = fileUploader.uploadFile(reviewImg);
@@ -93,7 +95,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         reviewDTO.setReviewImgUrl(fileUrl);
-
         try {
             reviewMainMapper.insertReview(reviewDTO);
         } catch (Exception e) {
@@ -105,13 +106,25 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(rollbackFor = ModifyReviewException.class)
-    public void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException {
-        ReviewDTO reviewDto = new ReviewDTO();
+    public ResponseEntity<Object> modifyReview(ReviewDTO reviewDTO, MultipartFile reviewImg) throws ModifyReviewException {
+
+        /* 수정할 파일 들어오면 서버에 img 파일 업로드 -> url 받아와서 수정 */
+        if(reviewImg != null && reviewImg.getSize() > 0){
+            String fileUrl = "";
+            try{
+                fileUrl = fileUploader.uploadFile(reviewImg);
+                reviewDTO.setReviewImgUrl(fileUrl);
+            } catch (Exception e){
+                return ResponseEntity.status(400).build(); // 파일 업로드 실패
+            }
+        }
+
         try {
             reviewMainMapper.updateReview(reviewDTO);
         } catch (Exception e) {
             throw new ModifyReviewException("리뷰  수정 중 에러가 발생했습니다");
         }
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -133,8 +146,6 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDetailDTO getReviewModify(String id, int reviewId) {
         ReviewDetailDTO reviewDetailDTO = reviewDetailMapper.getReviewDetail(reviewId);
-        List<ReviewImgDTO> reviewImgList = reviewDetailMapper.getReviewImages(reviewId);
-        reviewDetailDTO.setReviewImgList(reviewImgList);
         return reviewDetailDTO;
     }
 

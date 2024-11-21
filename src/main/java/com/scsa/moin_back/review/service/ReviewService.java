@@ -58,9 +58,11 @@ public interface ReviewService {
 
     /**
      * 리뷰 수정
+     *
      * @param reviewDTO
+     * @return
      */
-    void modifyReview(ReviewDTO reviewDTO) throws ModifyReviewException;
+    ResponseEntity<Object> modifyReview(ReviewDTO reviewDTO, MultipartFile reviewImg) throws ModifyReviewException;
 
     /**
      * 마이페이지 리뷰 조회

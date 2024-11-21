@@ -42,9 +42,9 @@ public class ReviewDetailServiceImpl implements ReviewDetailService {
     @Override
     @Transactional(rollbackFor = RemoveReviewException.class)
     public void removeReview(int reviewId) {
-        reviewDetailMapper.deleteReviewRecmtBfReview(reviewId);
+//        reviewDetailMapper.deleteReviewRecmtBfReview(reviewId);
         reviewDetailMapper.deleteReviewCmtBfReview(reviewId);
-        reviewDetailMapper.deleteReviewImgsBfReview(reviewId);
+//        reviewDetailMapper.deleteReviewImgsBfReview(reviewId);
         reviewDetailMapper.deleteReview(reviewId);
     }
 
