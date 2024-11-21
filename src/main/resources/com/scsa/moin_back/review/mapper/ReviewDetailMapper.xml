@@ -69,7 +69,7 @@
     </resultMap>
 
     <select id="getReviewDetail" parameterType="int"  resultType="com.scsa.moin_back.review.dto.ReviewDetailDTO">
-              SELECT /* 리뷰 상세 내용 */
+          SELECT /* 리뷰 상세 내용 */
                REVIEW_ID
              , REVIEW_GROUP_ID
              , REVIEW_TITLE
@@ -86,6 +86,7 @@
              , REVIEW_CONTENT
              , ID AS REVIEW_WRITER_ID
              , (SELECT PROFILE_URL FROM MEMBERS M WHERE M.ID=R.ID) AS PROFILE_URL
+             , REVIEW_IMG_URL
           FROM REVIEW R
          WHERE REVIEW_ID = #{reviewId}
     </select>
@@ -135,49 +136,33 @@
     </select>
 
     <select id="getReviewRecGroup" parameterType="int" resultMap="reviewRecGroupPartMap">
-        WITH PARTICIPATION_MEMBER AS (
-                SELECT M.NICKNAME
-                     , M.PROFILE_URL
-                     , P.*
-                  FROM PARTICIPATION P
-                     , MEMBERS M
-                 WHERE P.ID = M.ID
-                 ORDER BY PARTICIPATION_ID
-        ) SELECT REC.*
-               , PM.NICKNAME
-               , PM.PROFILE_URL
-               , PM.ID
-               , PM.PARTICIPATION_ID
+
+          SELECT /* 같은 카테고리의 추천 모임 (최신) */
+                 REC_GRP.*
+               , ROWNUM
             FROM (
-                  SELECT /* 같은 카테고리의 추천 모임 (최신) */
-                         REC_GRP.*
-                       , ROWNUM
-                    FROM (
-                           SELECT GROUP_ID
-                                , GROUP_LEADER_ID
-                                , GROUP_NAME
-                                , INTRO_TEXT
-                                , GROUP_LIMIT
-                                , PARTICIPATION_COUNT
-                                , (
-                                    SELECT CATEGORY_NAME
-                                      FROM CATEGORIES
-                                     WHERE CATEGORY_ID = G.CATEGORY_ID
-                                  ) AS CATEGORY_NAME
-                                , CREATED_AT
-                             FROM GROUPS G
-                            WHERE CATEGORY_ID IN ( SELECT CATEGORY_ID
-                                                     FROM GROUPS
-                                                    WHERE GROUP_ID = #{groupId}
-                                                  )
-                              AND DEL_YN = 'N'
-                              AND GROUP_ID != #{groupId}
-                            ORDER BY CREATED_AT DESC
-                           ) REC_GRP
-                       WHERE ROWNUM = 1
-                    ) REC
-                    , PARTICIPATION_MEMBER PM
-               WHERE REC.GROUP_ID = PM.GROUP_ID
+                   SELECT GROUP_ID
+                        , GROUP_LEADER_ID
+                        , GROUP_NAME
+                        , INTRO_TEXT
+                        , GROUP_LIMIT
+                        , PARTICIPATION_COUNT
+                        , (
+                            SELECT CATEGORY_NAME
+                              FROM CATEGORIES
+                             WHERE CATEGORY_ID = G.CATEGORY_ID
+                          ) AS CATEGORY_NAME
+                        , CREATED_AT
+                     FROM GROUPS G
+                    WHERE CATEGORY_ID IN ( SELECT CATEGORY_ID
+                                             FROM GROUPS
+                                            WHERE GROUP_ID = #{groupId}
+                                          )
+                      AND DEL_YN = 'N'
+                      AND GROUP_ID != #{groupId}
+                    ORDER BY CREATED_AT DESC
+                   ) REC_GRP
+               WHERE ROWNUM = 1
     </select>
 
     <select id="getReviewComment" parameterType="int" resultMap="ReviewCommentResultMap">
@@ -219,23 +204,23 @@
 
 
     <!-- 리뷰 삭제 로직 START-->
-    <delete id="deleteReviewRecmtBfReview" parameterType="int">
-        DELETE /* 리뷰 삭제 전 리뷰 대댓글 삭제 */
-          FROM REVIEW_RECOMMENTS
-         WHERE REVIEW_RECOMMENT_ID IN (
-                                    SELECT REVIEW_RECOMMENT_ID
-                                      FROM REVIEW_RECOMMENTS RRC
-                                         , REVIEW_COMMENTS RC
-                                      WHERE RRC.REVIEW_COMMENT_ID = RC.REVIEW_COMMENT_ID
-                                        AND RC.REVIEW_ID = #{reviewId}
-                                    )
-    </delete>
+<!--    <delete id="deleteReviewRecmtBfReview" parameterType="int">-->
+<!--        DELETE /* 리뷰 삭제 전 리뷰 대댓글 삭제 */-->
+<!--          FROM REVIEW_RECOMMENTS-->
+<!--         WHERE REVIEW_RECOMMENT_ID IN (-->
+<!--                                    SELECT REVIEW_RECOMMENT_ID-->
+<!--                                      FROM REVIEW_RECOMMENTS RRC-->
+<!--                                         , REVIEW_COMMENTS RC-->
+<!--                                      WHERE RRC.REVIEW_COMMENT_ID = RC.REVIEW_COMMENT_ID-->
+<!--                                        AND RC.REVIEW_ID = #{reviewId}-->
+<!--                                    )-->
+<!--    </delete>-->
 
-    <delete id="deleteReviewImgsBfReview" parameterType="int">
-      DELETE /* 리뷰 삭제 전 리뷰 이미지 삭제*/
-      FROM REVIEW_IMGS
-     WHERE REVIEW_ID = #{reviewId}
-    </delete>
+<!--    <delete id="deleteReviewImgsBfReview" parameterType="int">-->
+<!--      DELETE /* 리뷰 삭제 전 리뷰 이미지 삭제*/-->
+<!--      FROM REVIEW_IMGS-->
+<!--     WHERE REVIEW_ID = #{reviewId}-->
+<!--    </delete>-->
 
     <delete id="deleteReviewCmtBfReview" parameterType="int">
     DELETE /* 리뷰 삭제 전 리뷰 댓글 삭제 */

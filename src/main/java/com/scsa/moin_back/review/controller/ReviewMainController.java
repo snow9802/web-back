@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -105,12 +106,14 @@ public class ReviewMainController {
      * @return
      */
     @GetMapping(value = {"/regist/{groupId}"})
-    public ResponseEntity getReviewGroup(@PathVariable int groupId, HttpSession httpSession) throws FindReviewException {
+    public ResponseEntity getReviewGroup(@PathVariable int groupId, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
         if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
+
+        /* 그룹 이름 가져오기, 그룹 이름없으면 에러*/
         String reviewGroupName = reviewService.chkValidGroup(id, groupId);
         if (reviewGroupName == null || reviewGroupName.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -126,14 +129,18 @@ public class ReviewMainController {
      */
     @PostMapping(value = {"/regist/{groupId}"})
     public ResponseEntity registReview(
-            @RequestBody ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
+            @RequestPart ReviewDTO reviewDTO
+            , @RequestPart(required = false) MultipartFile reviewImg
+            , HttpSession httpSession
+    ) throws AddReviewException {
+
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
         if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewDTO.setId(id);
-        reviewService.addReview(reviewDTO);
+        reviewService.addReview(reviewDTO, reviewImg);
         /*리뷰 디테일에 들어가는 내용 파라미터로 받아서 insert구문*/
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -164,6 +171,7 @@ public class ReviewMainController {
             return ResponseEntity.status(405).build();
         }
 
+        /* 수정창 열기 */
         ReviewDetailDTO reviewDetailDTO = reviewService.getReviewModify(id, reviewId);
 
         return ResponseEntity.ok(reviewDetailDTO);
@@ -177,9 +185,11 @@ public class ReviewMainController {
      */
     @PutMapping(value = {"/modify/{reviewId}"})
     public ResponseEntity modifyReview(
-            @PathVariable int reviewId,
-            @RequestBody ReviewDTO reviewDTO
-            , HttpSession httpSession) throws ModifyReviewException, FindReviewException {
+            @PathVariable int reviewId
+            ,@RequestPart ReviewDTO reviewDTO
+            ,@RequestPart(required = false) MultipartFile reviewImg
+            ,HttpSession httpSession) throws ModifyReviewException, FindReviewException {
+
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
         if (id == null) {
@@ -195,8 +205,7 @@ public class ReviewMainController {
         }
         reviewDTO.setId(id);
         reviewDTO.setReviewId(reviewId);
-        reviewService.modifyReview(reviewDTO);
-        //리뷰 이미지도 같이 수정하는건지?? 어떻게 들어오는지 확인 후 이미지 수정 추가 필요
+        reviewService.modifyReview(reviewDTO, reviewImg);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

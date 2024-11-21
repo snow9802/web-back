@@ -32,22 +32,7 @@
           FROM GROUPS G
              , CATEGORIES C
          WHERE G.CATEGORY_ID = C.CATEGORY_ID
-    ), REVIEW_THUMBNAIL AS( /*리뷰 첫번째 사진*/
-        SELECT REVIEW_ID, REVIEW_IMG_URL
-        FROM (
-            SELECT ROW_NUMBER() OVER(PARTITION BY REVIEW_ID ORDER BY REVIEW_IMG_ID) AS RN
-                 , REVIEW_ID
-                 , REVIEW_IMG_URL
-              FROM REVIEW_IMGS)
-        WHERE RN=1
-    ),REVIEW_DATA AS(
-        SELECT R.*
-             , RT.REVIEW_IMG_URL
-          FROM REVIEW R
-          LEFT OUTER JOIN REVIEW_THUMBNAIL RT
-            ON R.REVIEW_ID = RT.REVIEW_ID
-    )
-        SELECT *
+    )    SELECT *
           FROM (
                 SELECT RM.*
                      , ROWNUM R
@@ -87,7 +72,7 @@
                            , GD.DISTRICT
                            , GD.CATEGORY_NAME
                            , R.REVIEW_IMG_URL
-                        FROM REVIEW_DATA R
+                        FROM REVIEW R
                            , GROUP_DATA GD
                        WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
                         <if test="searchParam != ''">
@@ -208,6 +193,7 @@
              , REVIEW_TITLE
              , REVIEW_CONTENT
              , CREATED_AT
+             , REVIEW_IMG_URL
              )
         VALUES ( #{reviewId}
              , #{reviewGroupId}
@@ -215,28 +201,32 @@
              , #{reviewTitle}
              , #{reviewContent}
              , SYSDATE
+             , #{reviewImgUrl}
              )
     </insert>
 
-    <insert id="insertReviewImgs" parameterType="com.scsa.moin_back.review.vo.ReviewImgVO">
-            INSERT /* 리뷰 후기 사진 등록 */
-              INTO REVIEW_IMGS
-                 ( REVIEW_IMG_ID
-                 , REVIEW_ID
-                 , REVIEW_IMG_URL
-                )
-            VALUES
-                ( (SELECT NVL(MAX(REVIEW_IMG_ID), 0) + 1 FROM REVIEW_IMGS)
-                 , #{reviewId}
-                 , #{reviewImgUrl}
-                )
-    </insert>
+<!--    <insert id="insertReviewImgs" parameterType="com.scsa.moin_back.review.vo.ReviewImgVO">-->
+<!--            INSERT /* 리뷰 후기 사진 등록 */-->
+<!--              INTO REVIEW_IMGS-->
+<!--                 ( REVIEW_IMG_ID-->
+<!--                 , REVIEW_ID-->
+<!--                 , REVIEW_IMG_URL-->
+<!--                )-->
+<!--            VALUES-->
+<!--                ( (SELECT NVL(MAX(REVIEW_IMG_ID), 0) + 1 FROM REVIEW_IMGS)-->
+<!--                 , #{reviewId}-->
+<!--                 , #{reviewImgUrl}-->
+<!--                )-->
+<!--    </insert>-->
 
     <update id="updateReview" parameterType="com.scsa.moin_back.review.dto.ReviewDTO">
         UPDATE REVIEW
            SET /* 리뷰 수정*/
                REVIEW_TITLE = #{reviewTitle}
              , REVIEW_CONTENT = #{reviewContent}
+            <if test="reviewImgUrl != null and reviewImgUrl != ''">
+                , REVIEW_IMG_URL = #{reviewImgUrl}
+            </if>
          WHERE REVIEW_ID = #{reviewId}
            AND ID = #{id}
     </update>
@@ -252,29 +242,15 @@
           FROM GROUPS G
              , CATEGORIES C
          WHERE G.CATEGORY_ID = C.CATEGORY_ID
-    ), REVIEW_THUMBNAIL AS( /*리뷰 첫번째 사진*/
-        SELECT REVIEW_ID, REVIEW_IMG_URL
-        FROM (
-            SELECT ROW_NUMBER() OVER(PARTITION BY REVIEW_ID ORDER BY REVIEW_IMG_ID) AS RN
-                 , REVIEW_ID
-                 , REVIEW_IMG_URL
-              FROM REVIEW_IMGS)
-        WHERE RN=1
-    ),REVIEW_DATA AS(
-        SELECT R.*
-             , RT.REVIEW_IMG_URL
-          FROM REVIEW R
-          LEFT OUTER JOIN REVIEW_THUMBNAIL RT
-            ON R.REVIEW_ID = RT.REVIEW_ID
-    )
-        SELECT *
+    )   SELECT * /* 마이페이지 내리뷰 조회 */
           FROM (
                 SELECT RM.*
-                     , ROWNUM R
+                     , ROWNUM RN
                   FROM (
                         SELECT
                             R.REVIEW_ID,
                             R.REVIEW_GROUP_ID,
+                            R.ID,
                             (
                                 SELECT
                                     M.NICKNAME
@@ -307,7 +283,7 @@
                            , GD.DISTRICT
                            , GD.CATEGORY_NAME
                            , R.REVIEW_IMG_URL
-                        FROM REVIEW_DATA R
+                        FROM REVIEW R
                            , GROUP_DATA GD
                        WHERE R.REVIEW_GROUP_ID = GD.GROUP_ID
                          AND R.ID = #{id}
@@ -316,7 +292,7 @@
              )
              WHERE 1 = 1
             <if test="startRow != null and endRow != null">
-                AND R BETWEEN #{startRow} AND #{endRow}
+                AND RN BETWEEN #{startRow} AND #{endRow}
             </if>
     </select>
 
