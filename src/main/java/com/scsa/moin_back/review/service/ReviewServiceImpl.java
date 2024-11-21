@@ -1,6 +1,7 @@
 package com.scsa.moin_back.review.service;
 
 import com.scsa.moin_back.common.dto.PageDTO;
+import com.scsa.moin_back.common.service.FileUploader;
 import com.scsa.moin_back.review.dto.ReviewDTO;
 import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewGroupDTO;
@@ -12,9 +13,11 @@ import com.scsa.moin_back.review.mapper.ReviewMainMapper;
 import com.scsa.moin_back.review.vo.ReviewImgVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -29,6 +32,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     final private ReviewMainMapper reviewMainMapper;
     private final ReviewDetailMapper reviewDetailMapper;
+    private final FileUploader fileUploader;
 
     @Override
     public PageDTO<ReviewDTO> getReviewList(Map<String, Object> map, int currentPage, int pageSize) {
@@ -68,7 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void addReview(ReviewDTO reviewDTO) throws AddReviewException {
+    public ResponseEntity<Object> addReview(ReviewDTO reviewDTO, MultipartFile reviewImg) throws AddReviewException {
         /* 리뷰DTO 유효성검사 */
         if (reviewDTO.getReviewContent() == null ||
                 reviewDTO.getReviewTitle() == null ||
@@ -77,24 +81,26 @@ public class ReviewServiceImpl implements ReviewService {
                 reviewMainMapper.chkDupReview(reviewDTO) > 0) {
             throw new AddReviewException("유효하지 않은 데이터 혹은 중복된 데이터가 입력되었습니다");
         }
+
+        String fileUrl = "default url";
+        /* img 파일 업로드 */
+        if (reviewImg != null){
+            try{
+                fileUrl = fileUploader.uploadFile(reviewImg);
+            } catch (Exception e){
+                return ResponseEntity.status(400).build(); // 파일 업로드 실패
+            }
+        }
+
+        reviewDTO.setReviewImgUrl(fileUrl);
+
         try {
             reviewMainMapper.insertReview(reviewDTO);
         } catch (Exception e) {
             throw new AddReviewException(e.getMessage());
-
         }
 
-        try {
-            List<ReviewImgVO> reviewImgList = reviewDTO.getReviewImgList();
-            if (reviewImgList != null && !reviewImgList.isEmpty()) {
-                for (ReviewImgVO reviewImgVO : reviewImgList) {
-                    reviewImgVO.setReviewId(reviewDTO.getReviewId());
-                    reviewMainMapper.insertReviewImgs(reviewImgVO);
-                }
-            }
-        } catch (Exception e) {
-            throw new AddReviewException(e.getMessage());
-        }
+        return ResponseEntity.ok().build();
     }
 
     @Override

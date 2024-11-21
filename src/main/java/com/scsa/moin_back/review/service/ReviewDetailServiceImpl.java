@@ -34,10 +34,6 @@ public class ReviewDetailServiceImpl implements ReviewDetailService {
         reviewDetailDTO.setReviewGroup(reviewDetailMapper.getReviewGroup(reviewDetailDTO.getReviewGroupId()));
         //4.리뷰 모임 추천 조회
         reviewDetailDTO.setReviewRecGroup(reviewDetailMapper.getReviewRecGroup(reviewDetailDTO.getReviewGroupId()));
-        //5.리뷰 상세 이미지 조회
-        List<ReviewImgDTO> reviewImgList = reviewDetailMapper.getReviewImages(reviewId);
-        reviewDetailDTO.setReviewImgList(reviewImgList);
-
 
         return reviewDetailDTO;
     }

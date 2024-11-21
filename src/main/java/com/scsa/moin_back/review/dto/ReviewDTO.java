@@ -28,8 +28,6 @@ public class ReviewDTO {
     private String reviewImgUrl;
     private Date createdAt;
 
-
     private List<ReviewCommentVO> reviewCommentList;
     private List<ReviewRecommentVO> reviewRecommentList;
-    private List<ReviewImgVO> reviewImgList;
 }

@@ -6,6 +6,8 @@ import com.scsa.moin_back.review.dto.ReviewDetailDTO;
 import com.scsa.moin_back.review.dto.ReviewGroupDTO;
 import com.scsa.moin_back.review.exception.AddReviewException;
 import com.scsa.moin_back.review.exception.ModifyReviewException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -47,10 +49,12 @@ public interface ReviewService {
 
     /**
      * 리뷰 추가
+     *
      * @param reviewDTO
+     * @return
      * @throws AddReviewException
      */
-    void addReview(ReviewDTO reviewDTO) throws AddReviewException;
+    ResponseEntity<Object> addReview(ReviewDTO reviewDTO, MultipartFile reviewImg) throws AddReviewException;
 
     /**
      * 리뷰 수정
@@ -73,4 +77,5 @@ public interface ReviewService {
      * @return
      */
     ReviewDetailDTO getReviewModify(String id, int reviewId);
+
 }

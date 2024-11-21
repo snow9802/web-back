@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -124,14 +125,19 @@ public class ReviewMainController {
      */
     @PostMapping(value = {"/regist/{groupId}"})
     public ResponseEntity registReview(
-            @RequestBody ReviewDTO reviewDTO, HttpSession httpSession) throws AddReviewException {
+            @RequestPart ReviewDTO reviewDTO
+            , @RequestPart(required = false) MultipartFile reviewImg
+            , HttpSession httpSession
+    ) throws AddReviewException {
+
+
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
         if (id == null) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewDTO.setId(id);
-        reviewService.addReview(reviewDTO);
+        reviewService.addReview(reviewDTO, reviewImg);
         /*리뷰 디테일에 들어가는 내용 파라미터로 받아서 insert구문*/
         return new ResponseEntity<>(HttpStatus.OK);
     }
