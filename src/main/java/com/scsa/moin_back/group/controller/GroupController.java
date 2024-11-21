@@ -9,10 +9,12 @@ import com.scsa.moin_back.group.service.IGroupService;
 import com.scsa.moin_back.group.vo.GroupVO;
 import com.scsa.moin_back.member.config.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Optional;
@@ -254,7 +256,11 @@ public class GroupController {
      * @return
      */
     @PostMapping("/like")
-    public ResponseEntity<Object> likeGroup(@RequestBody HashMap<String, Object> paramMap){
+    public ResponseEntity<Object> likeGroup(HttpServletRequest request, @RequestBody HashMap<String, Object> paramMap){
+        if (request.getHeader(HttpHeaders.AUTHORIZATION) == null){
+            return ResponseEntity.status(405).build();
+        }
+
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = securityUtil.getCurrentMemberId();
@@ -272,7 +278,11 @@ public class GroupController {
      * @return
      */
     @DeleteMapping("/like")
-    public ResponseEntity<Object> unlikeGroup(@RequestBody HashMap<String, Object> paramMap){
+    public ResponseEntity<Object> unlikeGroup(HttpServletRequest request, @RequestBody HashMap<String, Object> paramMap){
+        if (request.getHeader(HttpHeaders.AUTHORIZATION) == null){
+            return ResponseEntity.status(405).build();
+        }
+
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = securityUtil.getCurrentMemberId();
