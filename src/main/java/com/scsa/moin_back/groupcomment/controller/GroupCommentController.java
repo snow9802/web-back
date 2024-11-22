@@ -29,7 +29,6 @@ public class GroupCommentController {
 
     @PutMapping
     public ResponseEntity<Object> modifyGroupComment(@RequestBody GroupCommentVO groupCommentVO){
-        groupCommentVO.setId(securityUtil.getCurrentMemberId());
         try {
             return groupCommentService.modifyGroupComment(groupCommentVO);
         } catch (Exception e) {
@@ -39,7 +38,6 @@ public class GroupCommentController {
 
     @DeleteMapping
     public ResponseEntity<Object> deleteGroupComment(@RequestBody GroupCommentVO groupCommentVO){
-        groupCommentVO.setId(securityUtil.getCurrentMemberId());
         try {
             return groupCommentService.removeGroupComment(groupCommentVO);
         } catch (Exception e) {

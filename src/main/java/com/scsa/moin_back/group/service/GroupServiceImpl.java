@@ -166,6 +166,8 @@ public class GroupServiceImpl implements IGroupService {
             } catch (Exception e){
                 return ResponseEntity.status(409).build();
             }
+        } else {
+            group.setGroupImg("default url");
         }
 
         /* 모임명과 카테고리가 null인 경우 에러 코드 응답 */
