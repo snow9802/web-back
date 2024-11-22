@@ -149,4 +149,6 @@ public interface GroupMainMapper {
      * @return
      */
     int getMyFavoriteGroupsCnt(Map<String, Object> paramMap);
+
+    GroupVO searchGroupByIdNow(int groupId);
 }

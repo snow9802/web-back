@@ -176,7 +176,8 @@ public class GroupServiceImpl implements IGroupService {
                 return ResponseEntity.status(409).build();
             }
         } else {
-            group.setGroupImg("default url");
+            GroupVO curGroup = groupMainMapper.searchGroupByIdNow(group.getGroupId());
+            group.setGroupImg(curGroup.getGroupImg());
         }
 
         /* 모임명과 카테고리가 null인 경우 에러 코드 응답 */
