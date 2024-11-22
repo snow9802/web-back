@@ -10,6 +10,7 @@ import com.scsa.moin_back.group.mapper.GroupDetailMapper;
 import com.scsa.moin_back.group.mapper.GroupMainMapper;
 import com.scsa.moin_back.group.mapper.GroupParticipationMapper;
 import com.scsa.moin_back.group.vo.GroupVO;
+import com.scsa.moin_back.group.vo.ParticipationNum;
 import com.scsa.moin_back.member.config.SecurityConfig;
 import com.scsa.moin_back.member.config.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,10 @@ public class GroupServiceImpl implements IGroupService {
         int groupId = Integer.parseInt(paramMap.get("groupId").toString());
         String userId = securityUtil.getCurrentMemberId();
 
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
         try{
             if (groupMainMapper.searchGroupById(userId, groupId) != null){
                 groupMainMapper.modifyGroupRemove(groupId);
@@ -140,6 +145,10 @@ public class GroupServiceImpl implements IGroupService {
         String userId = securityUtil.getCurrentMemberId();
         System.out.println("ID : " + userId);
 
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
         try {
             GroupVO group = groupMainMapper.searchGroupById(userId, groupId.get());
             if (group == null){
@@ -193,6 +202,15 @@ public class GroupServiceImpl implements IGroupService {
         if (paramMap.get("groupId") == null || paramMap.get("id") == null){
             return ResponseEntity.status(405).build();
         }
+
+//        // 참여 인원 유효성 체크
+//        int groupId_int = Integer.parseInt(paramMap.get("groupId").toString());
+//        ParticipationNum participationNum = groupParticipationMapper.getGroupParticipationNum(groupId_int);
+//        if (participationNum.getCurNum() >= participationNum.getMaxNum()) {
+//            System.out.println("참여 인원 : " + participationNum.getCurNum());
+//            System.out.println("최대 인원   : " + participationNum.getMaxNum());
+//            throw new Exception();
+//        }
 
         /* 이미 참여 중이라면 추가로 넣으면 안됨 */
         int count = groupParticipationMapper.searchParticipationCount(paramMap);

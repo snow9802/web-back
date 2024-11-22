@@ -49,7 +49,7 @@ public class ReviewDetailController {
             @PathVariable int reviewId
     ) throws RemoveReviewException, FindReviewException {
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         // 접속자 id 권한 확인
@@ -96,7 +96,7 @@ public class ReviewDetailController {
             @RequestParam("commentContent") String commentContent
             , HttpSession httpSession    ) throws FindReviewException {
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)){
             reviewExceptionHandler.checkLogin(httpSession);
         }
 
@@ -131,7 +131,7 @@ public class ReviewDetailController {
     ) throws RemoveReviewException, FindReviewException {
 
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)){
             reviewExceptionHandler.checkLogin(httpSession);
         }
 
@@ -162,7 +162,7 @@ public class ReviewDetailController {
             HttpSession httpSession
     ){
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)){
             reviewExceptionHandler.checkLogin(httpSession);
         }
         ReviewRecommentDTO reviewRecommentDTO = new ReviewRecommentDTO();
@@ -186,7 +186,7 @@ public class ReviewDetailController {
             HttpSession httpSession
     ){
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)){
             reviewExceptionHandler.checkLogin(httpSession);
         }
         ReviewRecommentDTO reviewRecommentDTO = new ReviewRecommentDTO();

@@ -68,6 +68,9 @@ public class GroupController {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String userId = securityUtil.getCurrentMemberId();
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyGroups(userId, currentPage, pageSize);
@@ -94,6 +97,10 @@ public class GroupController {
 //        String id = session.getAttribute("id").toString();
         String userId = securityUtil.getCurrentMemberId();
 
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyParticipationGroups(userId, currentPage, pageSize);
             return ResponseEntity.ok(pageDTO);
@@ -118,6 +125,10 @@ public class GroupController {
 //        String id = session.getAttribute("id").toString();
         String userId = securityUtil.getCurrentMemberId();
 
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyParticipationPastGroups(userId, currentPage, pageSize);
             return ResponseEntity.ok(pageDTO);
@@ -141,6 +152,10 @@ public class GroupController {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String userId = securityUtil.getCurrentMemberId();
+
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
 
         try {
             PageDTO<GroupDTO> pageDTO = groupService.getMyFavoriteGroups(userId, currentPage, pageSize);
@@ -192,8 +207,13 @@ public class GroupController {
                                               @RequestPart(required = false) MultipartFile fileImg) {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
-        String id = securityUtil.getCurrentMemberId();
-        group.setGroupLeaderId(id);
+        String userId = securityUtil.getCurrentMemberId();
+
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
+        group.setGroupLeaderId(userId);
 
         return groupService.registGroup(group, fileImg);
     }
@@ -227,7 +247,14 @@ public class GroupController {
      */
     @PostMapping("/join")
     public ResponseEntity<Object> joinGroup(@RequestBody HashMap<String, Object> paramMap) {
-        paramMap.put("id", securityUtil.getCurrentMemberId());
+
+        String userId = securityUtil.getCurrentMemberId();
+
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
+        paramMap.put("id", userId);
         try{
             return groupService.registParticipation(paramMap);
         } catch (Exception e){
@@ -242,7 +269,14 @@ public class GroupController {
      */
     @DeleteMapping("/join")
     public ResponseEntity<Object> resignParticipant(@RequestBody HashMap<String, Object> paramMap) {
-        paramMap.put("id", securityUtil.getCurrentMemberId());
+
+        String userId = securityUtil.getCurrentMemberId();
+
+        if (userId == null || "anonymousUser".equals(userId)) {
+            return ResponseEntity.status(400).build();
+        }
+
+        paramMap.put("id", userId);
         try{
             return groupService.removeParticipation(paramMap);
         } catch (Exception e){
@@ -264,6 +298,11 @@ public class GroupController {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = securityUtil.getCurrentMemberId();
+
+        if (id == null || "anonymousUser".equals(id)) {
+            return ResponseEntity.status(400).build();
+        }
+
         paramMap.put("id", id);
         try {
             return groupService.registLikeGroup(paramMap);
@@ -286,6 +325,11 @@ public class GroupController {
         /* login 방식에 따라 id 가져오는 방식 변경 가능 */
 //        String id = session.getAttribute("id").toString();
         String id = securityUtil.getCurrentMemberId();
+
+        if (id == null || "anonymousUser".equals(id)) {
+            return ResponseEntity.status(400).build();
+        }
+
         paramMap.put("id", id);
         try{
             return groupService.removeLikeGroup(paramMap);

@@ -1,5 +1,6 @@
 package com.scsa.moin_back.group.mapper;
 
+import com.scsa.moin_back.group.vo.ParticipationNum;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.HashMap;
@@ -16,4 +17,6 @@ public interface GroupParticipationMapper {
     int updateGroupParticipationPlus(HashMap<String, Object> paramMap);
 
     int updateGroupParticipationMinus(HashMap<String, Object> paramMap);
+
+    ParticipationNum getGroupParticipationNum(int groupId);
 }
