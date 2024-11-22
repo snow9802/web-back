@@ -8,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-
 @Service
 @RequiredArgsConstructor
 public class GroupCommentServiceImpl implements IGroupCommentService{
@@ -61,11 +59,13 @@ public class GroupCommentServiceImpl implements IGroupCommentService{
     @Transactional
     public ResponseEntity<Object> removeGroupComment(GroupCommentVO groupComment) throws Exception {
 
+        System.out.println(groupComment);
+
         // 댓글 작성자인지 확인
         String userId = securityUtil.getCurrentMemberId();
+        System.out.println("접속자 id : " + userId);
+        System.out.println("작성자 id : "  + groupComment.getId());
         if(!userId.equals(groupComment.getId())){
-            System.out.println("접속자 id : " + userId);
-            System.out.println("작성자 id : "  + groupComment.getId());
             System.out.println("댓글에 대한 권한이 없습니다.");
             return ResponseEntity.status(405).build();
         }

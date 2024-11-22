@@ -105,12 +105,12 @@ public class MemberController {
                 return ResponseEntity.badRequest().build();
             }
 
-            // 인증 이메일 전송
-            String code = mailService.sendSimpleMessage(member.getEmail());
-            System.out.println("사용자에게 발송한 인증코드 ==> " + code);
-            // 세션에 사용자 아이디, 인증번호 보낸 이메일 및 인증번호 저장
-            session.setAttribute("sendEmail", member.getEmail());
-            session.setAttribute("code", code);
+//            // 인증 이메일 전송
+//            String code = mailService.sendSimpleMessage(member.getEmail());
+//            System.out.println("사용자에게 발송한 인증코드 ==> " + code);
+//            // 세션에 사용자 아이디, 인증번호 보낸 이메일 및 인증번호 저장
+//            session.setAttribute("sendEmail", member.getEmail());
+//            session.setAttribute("code", code);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,7 +147,8 @@ public class MemberController {
 
     @PostMapping("/pwd-reset")
     public ResponseEntity pwdReset(@RequestBody Map<String, String> newPasswordMap, HttpSession session) {
-        String changePwdId = session.getAttribute("changePwdId").toString();
+//        String changePwdId = session.getAttribute("changePwdId").toString();
+        String changePwdId = newPasswordMap.get("id");
         String newPassword = newPasswordMap.get("password");
         MemberVO m = new MemberVO();
         m.setId(changePwdId);

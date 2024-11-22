@@ -74,7 +74,7 @@ public class ReviewDetailController {
             , HttpSession httpSession
 ){
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)){
             reviewExceptionHandler.checkLogin(httpSession);
         }
         ReviewCommentDTO reviewCommentDTO = new ReviewCommentDTO();
