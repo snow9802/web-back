@@ -39,4 +39,11 @@
         WHERE GROUP_ID = #{groupId}
         AND id = #{id}
     </delete>
+
+    <select id="getGroupParticipationNum" parameterType="int" resultType="com.scsa.moin_back.group.vo.ParticipationNum">
+        SELECT PARTICIPATION_COUNT, GROUP_LIMIT
+        FROM GROUPS
+        WHERE GROUP_ID = #{groupId}
+    </select>
+
 </mapper>

@@ -88,7 +88,7 @@ public class ReviewMainController {
         int ps = pageSize.orElse(5); //한 화면에 보여줄 페이지수 5
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if (id == null) {
+        if (id == null || "anonymousUser".equals(id)) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         PageDTO<ReviewGroupDTO> pageDTO = reviewService.getReviewGroup(id, cp, ps);
@@ -109,7 +109,7 @@ public class ReviewMainController {
     public ResponseEntity getReviewGroup(@PathVariable int groupId, HttpSession httpSession) throws AddReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if (id == null) {
+        if (id == null || "anonymousUser".equals(id)) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
 
@@ -136,7 +136,7 @@ public class ReviewMainController {
 
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if (id == null) {
+        if (id == null || "anonymousUser".equals(id)) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         reviewDTO.setId(id);
@@ -159,7 +159,7 @@ public class ReviewMainController {
             , HttpSession httpSession) throws FindReviewException {
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if (id == null) {
+        if (id == null || "anonymousUser".equals(id)) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         // 접속자 id 권한 확인
@@ -192,7 +192,7 @@ public class ReviewMainController {
 
         /*로그인한 사용자 아니면 뱉음*/
         String id = securityUtil.getCurrentMemberId();
-        if (id == null) {
+        if (id == null || "anonymousUser".equals(id)) {
             reviewExceptionHandler.checkLogin(httpSession);
         }
         // 접속자 id 권한 확인

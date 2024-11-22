@@ -37,7 +37,7 @@ public class ReviewMypageController {
             HttpSession httpSession
     ) throws Exception {
         String id = securityUtil.getCurrentMemberId();
-        if(id == null){
+        if(id == null || "anonymousUser".equals(id)){
             reviewExceptionHandler.checkLogin(httpSession);
         }
         PageDTO<ReviewDTO> pageDTO = reviewService.getMyPageReviewList(id, currentPage.orElse(1), pageSize.orElse(5));

@@ -18,7 +18,14 @@ public class GroupCommentController {
 
     @PostMapping
     public ResponseEntity<Object> registGroupComment(@RequestBody GroupCommentVO groupCommentVO){
-        groupCommentVO.setId(securityUtil.getCurrentMemberId());
+
+        String userId = securityUtil.getCurrentMemberId();
+        groupCommentVO.setId(userId);
+
+        if(userId == null || "anonymousUser".equals(userId)){
+            return ResponseEntity.status(400).build();
+        }
+
         System.out.println(groupCommentVO);
         try {
             return groupCommentService.registGroupComment(groupCommentVO);
