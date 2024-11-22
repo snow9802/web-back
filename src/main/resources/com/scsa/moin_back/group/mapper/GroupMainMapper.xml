@@ -218,6 +218,13 @@
         WHERE GROUP_LEADER_ID = #{userId} AND GROUP_ID = #{groupId}
     </select>
 
+    <!-- 모임 단일 조회2 -->
+    <select id="searchGroupByIdNow" resultType="com.scsa.moin_back.group.vo.GroupVO">
+        SELECT *
+        FROM GROUPS
+        WHERE GROUP_ID = #{groupId}
+    </select>
+
     <!-- 모임 삭제 여부 업데이트 -->
     <update id="modifyGroupRemove" parameterType="int">
         UPDATE GROUPS
